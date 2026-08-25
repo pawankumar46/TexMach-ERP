@@ -1,0 +1,92 @@
+import { USER_ROLES } from "@/constants/roles"
+
+export const PERSONAS = [
+  {
+    id: "ananya-sharma",
+    role: USER_ROLES.SUPER_ADMIN,
+    name: "Ananya Sharma",
+    title: "Head of Supply Chain",
+    email: "ananya.sharma@grouphca.com",
+    password: "Admin@123",
+    facilityIds: ["del-hq", "ggm-wh", "mum-rs", "blr-sh", "amd-pl"],
+    canViewAllFacilities: true,
+    summary:
+      "Company-wide stock health, user governance, and a consolidated ledger across every HCA facility.",
+  },
+  {
+    id: "rohit-mehra",
+    role: USER_ROLES.STORE_MANAGER,
+    name: "Rohit Mehra",
+    title: "Multi-Facility Store Manager",
+    email: "rohit.mehra@grouphca.com",
+    password: "Manager@123",
+    facilityIds: ["del-hq", "ggm-wh", "mum-rs"],
+    canViewAllFacilities: false,
+    summary:
+      "Balance North and West stores, approve transfers, and keep reorder points from slipping into stockouts.",
+  },
+  {
+    id: "priya-nair",
+    role: USER_ROLES.USER,
+    name: "Priya Nair",
+    title: "Inventory Executive · Delhi HQ",
+    email: "priya.nair@grouphca.com",
+    password: "Staff@123",
+    facilityIds: ["del-hq"],
+    canViewAllFacilities: false,
+    summary:
+      "Shop-floor receiving, putaway, picking, and cycle counts with barcode scanning at a single facility.",
+  },
+  {
+    id: "kenji-sato",
+    role: USER_ROLES.VENDOR,
+    name: "Kenji Sato",
+    title: "Duke OEM Partner",
+    email: "kenji.sato@duke-oem.example",
+    password: "Vendor@123",
+    facilityIds: [],
+    canViewAllFacilities: false,
+    brandFilter: "Duke",
+    summary:
+      "Maintain the Duke catalog — add machines and update SKU details. Warehouse stock stays with HCA staff. PO/ASN arrives in Phase 2.",
+  },
+]
+
+export const TEAM_USERS = [
+  ...PERSONAS.map((persona) => ({
+    id: persona.id,
+    name: persona.name,
+    email: persona.email,
+    role: persona.role,
+    title: persona.title,
+    facilityIds: persona.facilityIds,
+    status: "active",
+  })),
+  {
+    id: "arjun-das",
+    name: "Arjun Das",
+    email: "arjun.das@grouphca.com",
+    role: USER_ROLES.USER,
+    title: "Warehouse Associate · Gurugram",
+    facilityIds: ["ggm-wh"],
+    status: "active",
+  },
+  {
+    id: "meera-kapoor",
+    name: "Meera Kapoor",
+    email: "meera.kapoor@grouphca.com",
+    role: USER_ROLES.STORE_MANAGER,
+    title: "Plant Store Manager · Ahmedabad",
+    facilityIds: ["amd-pl", "blr-sh"],
+    status: "active",
+  },
+  {
+    id: "farhan-qureshi",
+    name: "Farhan Qureshi",
+    email: "farhan.qureshi@grouphca.com",
+    role: USER_ROLES.USER,
+    title: "Store Executive · Mumbai",
+    facilityIds: ["mum-rs"],
+    status: "inactive",
+  },
+]
