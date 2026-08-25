@@ -113,6 +113,8 @@ React Router, Zustand, Tailwind CSS, Lucide, Framer Motion, React Hook Form, Zod
 
 **2026-08-25** — Vendors (and other catalog managers) can add and edit inventory items. Duke OEM partner Kenji Sato is limited to the Duke brand.
 
+**2026-08-25** — Added `.cursor/rules/` and environment files to `.gitignore` (`.env.example` remains tracked).
+
 **2026-08-25** — Replaced persona picker with email/password sign-in. Demo credentials map to the four Phase 1 roles.
 
 **2026-08-25** — Rebranded from TexMach ERP to InvenTree across UI, page title, and config.
