@@ -1,5 +1,12 @@
 import { create } from "zustand"
-import { createInventoryItem, getInventoryItems, updateInventoryItem } from "@/services/inventory.service"
+import {
+  createInventoryItem,
+  deleteInventoryItem,
+  getInventoryItems,
+  updateInventoryItem,
+} from "@/services/inventory.service"
+import { removeProductStockData } from "@/services/stock.service"
+import { removeProductScanTasks } from "@/services/scan.service"
 import { useAuthStore } from "@/store/useAuthStore"
 import { useFacilityStore } from "@/store/useFacilityStore"
 
@@ -55,6 +62,21 @@ export const useInventoryStore = create((set, get) => ({
       set({ mutating: false })
       await get().fetchInventory()
       return updated
+    } catch (error) {
+      set({ mutating: false })
+      throw error
+    }
+  },
+  deleteItem: async (productId) => {
+    const user = useAuthStore.getState().user
+    set({ mutating: true })
+    try {
+      const deleted = await deleteInventoryItem(productId, user)
+      removeProductStockData(productId)
+      removeProductScanTasks(productId)
+      set({ mutating: false })
+      await get().fetchInventory()
+      return deleted
     } catch (error) {
       set({ mutating: false })
       throw error

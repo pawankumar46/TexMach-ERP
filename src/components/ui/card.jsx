@@ -1,11 +1,13 @@
 import { cn } from "@/lib/utils"
 
-export const Card = ({ className, children, onClick }) => {
+export const Card = ({ className, children, onClick, interactive = false }) => {
+  const isInteractive = Boolean(onClick) || interactive
+
   return (
     <div
       className={cn(
-        "rounded-2xl border border-line bg-white p-5 shadow-sm",
-        onClick && "cursor-pointer transition-shadow duration-200 hover:shadow-md",
+        "rounded-2xl border border-line/90 bg-white/95 p-5 shadow-[var(--shadow-card)] backdrop-blur-sm",
+        isInteractive && "surface-card-interactive cursor-pointer",
         className,
       )}
       onClick={onClick}

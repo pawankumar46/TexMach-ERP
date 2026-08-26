@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import { PackageSearch, Plus } from "lucide-react"
+import { toast } from "sonner"
 import { PageHeader } from "@/components/layout/PageHeader"
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ErrorState } from "@/components/ui/error-state"
 import { CardGridSkeleton, TableSkeleton } from "@/components/ui/loading-skeleton"
@@ -18,15 +20,18 @@ export const InventoryPage = () => {
   const [view, setView] = useState("grid")
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState(null)
+  const [deleting, setDeleting] = useState(null)
   const user = useAuthStore((state) => state.user)
   const can = useAuthStore((state) => state.can)
   const selectedFacilityId = useFacilityStore((state) => state.selectedFacilityId)
   const items = useInventoryStore((state) => state.items)
   const loading = useInventoryStore((state) => state.loading)
   const error = useInventoryStore((state) => state.error)
+  const mutating = useInventoryStore((state) => state.mutating)
   const filters = useInventoryStore((state) => state.filters)
   const setFilters = useInventoryStore((state) => state.setFilters)
   const fetchInventory = useInventoryStore((state) => state.fetchInventory)
+  const deleteItem = useInventoryStore((state) => state.deleteItem)
   const canManage = can(PERMISSIONS.INVENTORY_MANAGE)
 
   useEffect(() => {
@@ -47,13 +52,27 @@ export const InventoryPage = () => {
     setFormOpen(true)
   }
 
+  const handleConfirmDelete = async () => {
+    if (!deleting) {
+      return
+    }
+
+    try {
+      await deleteItem(deleting.id)
+      toast.success(`${deleting.name} removed from the catalog.`)
+      setDeleting(null)
+    } catch (deleteError) {
+      toast.error(deleteError.message)
+    }
+  }
+
   return (
     <div>
       <PageHeader
         title="Inventory management"
         description={
           user?.brandFilter
-            ? `Add and update ${user.brandFilter} catalog items. Photos and names can be edited; HCA warehouse stock stays hidden.`
+            ? `Add, update, or remove ${user.brandFilter} catalog items. Photos and names can be edited; HCA warehouse stock stays hidden.`
             : "Machine catalog with photos and names from grouphca.com, mapped onto the Phase 1 stock ledger."
         }
         actions={
@@ -92,8 +111,8 @@ export const InventoryPage = () => {
       ) : null}
       {!loading && !error && items.length
         ? view === "grid"
-          ? <InventoryCardGrid items={items} onEdit={openEdit} />
-          : <InventoryTable items={items} onEdit={openEdit} />
+          ? <InventoryCardGrid items={items} onEdit={openEdit} onDelete={setDeleting} />
+          : <InventoryTable items={items} onEdit={openEdit} onDelete={setDeleting} />
         : null}
 
       <ProductFormDialog
@@ -103,6 +122,20 @@ export const InventoryPage = () => {
           setFormOpen(false)
           setEditing(null)
         }}
+      />
+
+      <ConfirmDialog
+        open={Boolean(deleting)}
+        title="Delete catalog item?"
+        message={
+          deleting
+            ? `Remove “${deleting.name}” (${deleting.sku}) from the catalog? Related warehouse stock for this SKU will also be cleared.`
+            : ""
+        }
+        confirmLabel="Delete item"
+        loading={mutating}
+        onCancel={() => setDeleting(null)}
+        onConfirm={handleConfirmDelete}
       />
     </div>
   )

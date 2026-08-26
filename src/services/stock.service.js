@@ -207,3 +207,7 @@ export const transferStock = async ({
 }
 
 export const getMovementsSnapshot = () => movements
+
+export const removeProductStockData = (productId) => {
+  movements = movements.filter((entry) => entry.productId !== productId)
+}

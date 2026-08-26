@@ -4,7 +4,7 @@ export const Input = ({ className, ...props }) => {
   return (
     <input
       className={cn(
-        "h-10 w-full rounded-lg border border-line bg-white px-3 text-sm text-ink shadow-sm placeholder:text-slate-400 focus:border-navy-600 focus:outline-none focus:ring-2 focus:ring-navy-100",
+        "h-10 w-full rounded-lg border border-line bg-white px-3 text-sm text-ink shadow-sm transition-[border-color,box-shadow] duration-200 placeholder:text-slate-400 focus:border-navy-600 focus:outline-none focus:ring-2 focus:ring-navy-100",
         className,
       )}
       {...props}
@@ -24,7 +24,7 @@ export const Select = ({ className, children, ...props }) => {
   return (
     <select
       className={cn(
-        "h-10 w-full rounded-lg border border-line bg-white px-3 text-sm text-ink shadow-sm focus:border-navy-600 focus:outline-none focus:ring-2 focus:ring-navy-100",
+        "h-10 w-full rounded-lg border border-line bg-white px-3 text-sm text-ink shadow-sm transition-[border-color,box-shadow] duration-200 focus:border-navy-600 focus:outline-none focus:ring-2 focus:ring-navy-100",
         className,
       )}
       {...props}

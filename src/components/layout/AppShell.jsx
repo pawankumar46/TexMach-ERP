@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
-import { Outlet, useNavigate } from "react-router-dom"
+import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { Header } from "@/components/layout/Header"
 import { Sidebar } from "@/components/layout/Sidebar"
+import { PageFade } from "@/components/ui/motion"
 import { useAuthStore } from "@/store/useAuthStore"
 import { ALL_FACILITIES, useFacilityStore } from "@/store/useFacilityStore"
 
@@ -13,6 +14,7 @@ export const AppShell = () => {
   const selectedFacilityId = useFacilityStore((state) => state.selectedFacilityId)
   const syncForUser = useFacilityStore((state) => state.syncForUser)
   const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
     if (!user) {
@@ -35,7 +37,7 @@ export const AppShell = () => {
   }
 
   return (
-    <div className="flex min-h-svh bg-canvas">
+    <div className="flex min-h-svh">
       <Sidebar
         user={user}
         can={can}
@@ -46,7 +48,9 @@ export const AppShell = () => {
       <div className="flex min-w-0 flex-1 flex-col">
         <Header user={user} onMenu={() => setNavOpen(true)} />
         <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-          <Outlet />
+          <PageFade key={location.pathname}>
+            <Outlet />
+          </PageFade>
         </main>
       </div>
     </div>

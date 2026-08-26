@@ -9,7 +9,7 @@ Catalog names and product photos are taken from the public HCA product list: [gr
 Blueprint modules delivered in this demo:
 
 - **User / role management** — four personas with facility-scoped access
-- **Inventory & stock management** — SKU master with photos, names, stock status, dummy costs, and catalog add/edit
+- **Inventory & stock management** — SKU master with photos, names, stock status, dummy costs, and catalog add/edit/delete
 - **Multi-facility warehouse management** — five Indian facilities, bin locations, utilization, transfers
 - **Barcode / RFID app** — GRN, putaway, picking, and cycle-count task queue with simulated scanning
 
@@ -33,7 +33,7 @@ The login page includes a collapsible **Demo accounts for review** panel to fill
 | Super Admin | Ananya Sharma | All five facilities, users & roles, consolidated ledger |
 | Store Manager | Rohit Mehra | Delhi, Gurugram, Mumbai — transfers and facility KPIs |
 | Store Executive | Priya Nair | Delhi HQ only, plus the scan app |
-| Vendor | Kenji Sato | Duke catalog only. Can **add and edit** Duke items. No warehouse quantities, transfers, or scanning (PO/ASN is Phase 2) |
+| Vendor | Kenji Sato | Duke catalog only. Can **add, edit, and delete** Duke items. No warehouse quantities, transfers, or scanning (PO/ASN is Phase 2) |
 
 ### Facilities
 
@@ -43,7 +43,7 @@ Delhi HQ Store, Gurugram Central Warehouse, Mumbai Regional Store, Bengaluru Ser
 
 - `/` — Sign in (email + password)
 - `/dashboard` — Home KPIs, low-stock watchlist, recent movements in plain language
-- `/inventory` — Product grid and table (photo + name + SKU); **Add item** / **Edit** for vendors, store managers, and Super Admin
+- `/inventory` — Product grid and table (photo + name + SKU); **Add** / **Edit** / **Delete** for vendors, store managers, and Super Admin
 - `/inventory/:productId` — Product detail and stock by facility
 - `/stock` — Stock ledger, adjustments, transfers, movement history
 - `/warehouses` — Facility cards and consolidated vs facility toggle
@@ -81,11 +81,13 @@ src/
 │   ├── stock/
 │   ├── users/
 │   └── warehouses/
-├── lib/                 # Formatters and mappers
+├── lib/                 # Formatters, mappers, motion presets
 ├── routes/
 ├── services/            # Dummy async services (swap for API later)
 └── store/               # Zustand stores
 ```
+
+Shared motion helpers live in `src/lib/motion.js` and `src/components/ui/motion.jsx` (fade, stagger, page enter).
 
 Data flow: **Page → Store → Service → dummy seed**. UI components do not call HTTP clients.
 
@@ -108,6 +110,10 @@ VITE_APP_NAME=InvenTree
 React Router, Zustand, Tailwind CSS, Lucide, Framer Motion, React Hook Form, Zod, Sonner, `clsx`, `tailwind-merge`.
 
 ## Changelog
+
+**2026-08-26** — Inventory delete: catalog managers can remove items from grid, table, and detail views with confirmation. Related stock, movements, and scan tasks for that SKU are cleared.
+
+**2026-08-26** — Premium visual polish: soft canvas mesh, glass header/cards, Framer Motion page and stagger animations, richer login hero, dialog transitions, and hover depth on inventory cards. Respects `prefers-reduced-motion`.
 
 **2026-08-25** — Phase 1 frontend: persona homepage, inventory from the HCA catalog, multi-facility stock ledger, warehouse view, barcode scan queue, and Super Admin user/role console.
 

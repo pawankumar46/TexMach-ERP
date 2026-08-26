@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ErrorState } from "@/components/ui/error-state"
 import { PageSkeleton } from "@/components/ui/loading-skeleton"
+import { Stagger, StaggerItem } from "@/components/ui/motion"
 import { ProductImage } from "@/components/inventory/ProductImage"
 import { StockStatusBadge } from "@/components/ui/stock-status-badge"
 import { USER_ROLES } from "@/constants/roles"
@@ -96,7 +97,7 @@ export const DashboardPage = () => {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {items.slice(0, 6).map((item) => (
             <Link key={item.id} to={`/inventory/${item.id}`}>
-              <Card className="flex gap-4 hover:shadow-md">
+              <Card interactive className="flex gap-4">
                 <ProductImage src={item.image} alt={item.name} className="h-20 w-20 rounded-xl" />
                 <div>
                   <p className="text-xs font-semibold text-navy-600">{item.sku}</p>
@@ -128,18 +129,26 @@ export const DashboardPage = () => {
         }
       />
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard icon={Package} label="Different products" value={formatNumber(skuCount)} hint="How many machine models we stock" />
-        <SummaryCard icon={Building2} label="Machines in store" value={formatNumber(totalUnits)} hint="Physical units at the stores you can see" />
-        <SummaryCard icon={TrendingUp} label="Stock value" value={formatCurrency(stockValue)} hint="Number of machines × unit cost" />
-        <SummaryCard
-          icon={AlertTriangle}
-          label="Running low"
-          value={formatNumber(lowStock.length)}
-          hint="Products that need restocking"
-          tone="amber"
-        />
-      </div>
+      <Stagger className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StaggerItem>
+          <SummaryCard icon={Package} label="Different products" value={formatNumber(skuCount)} hint="How many machine models we stock" />
+        </StaggerItem>
+        <StaggerItem>
+          <SummaryCard icon={Building2} label="Machines in store" value={formatNumber(totalUnits)} hint="Physical units at the stores you can see" />
+        </StaggerItem>
+        <StaggerItem>
+          <SummaryCard icon={TrendingUp} label="Stock value" value={formatCurrency(stockValue)} hint="Number of machines × unit cost" />
+        </StaggerItem>
+        <StaggerItem>
+          <SummaryCard
+            icon={AlertTriangle}
+            label="Running low"
+            value={formatNumber(lowStock.length)}
+            hint="Products that need restocking"
+            tone="amber"
+          />
+        </StaggerItem>
+      </Stagger>
 
       <div className="grid gap-6 xl:grid-cols-3">
         <Card className="xl:col-span-2">
@@ -151,7 +160,7 @@ export const DashboardPage = () => {
           </div>
           <div className="space-y-3">
             {lowStock.slice(0, 5).map((item) => (
-              <Link key={item.id} to={`/inventory/${item.id}`} className="flex items-center gap-3 rounded-xl p-2 hover:bg-navy-50">
+              <Link key={item.id} to={`/inventory/${item.id}`} className="flex items-center gap-3 rounded-xl p-2 transition-colors duration-200 hover:bg-navy-50">
                 <ProductImage src={item.image} alt="" className="h-12 w-12 rounded-lg" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-navy-900">{item.name}</p>
@@ -245,7 +254,7 @@ export const DashboardPage = () => {
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-slate-100">
                     <div
-                      className="h-full rounded-full bg-navy-700"
+                      className="progress-fill h-full rounded-full bg-gradient-to-r from-navy-800 to-navy-600"
                       style={{ width: `${facility.utilization}%` }}
                     />
                   </div>
@@ -261,12 +270,12 @@ export const DashboardPage = () => {
 
 const SummaryCard = ({ icon: Icon, label, value, hint, tone }) => {
   return (
-    <Card className={tone === "amber" ? "border-amber-200" : undefined}>
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-navy-50 text-navy-800">
+    <Card className={tone === "amber" ? "border-amber-200 bg-gradient-to-br from-white to-amber-50/80" : "bg-gradient-to-br from-white to-navy-50/40"}>
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-navy-50 text-navy-800 shadow-sm ring-1 ring-navy-100/80">
         <Icon className="h-5 w-5" />
       </div>
       <p className="text-sm text-muted">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-navy-900">{value}</p>
+      <p className="mt-1 text-2xl font-bold tracking-tight text-navy-900">{value}</p>
       <p className="mt-1 text-xs text-muted">{hint}</p>
     </Card>
   )

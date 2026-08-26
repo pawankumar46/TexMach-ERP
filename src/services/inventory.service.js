@@ -199,6 +199,26 @@ export const updateInventoryItem = async (productId, values, user) => {
   }
 }
 
+export const deleteInventoryItem = async (productId, user) => {
+  try {
+    await delay(420)
+    const current = productCatalog.find((item) => item.id === productId)
+
+    if (!current) {
+      throw new Error("Inventory item not found.")
+    }
+
+    assertCanManage(user, current)
+
+    productCatalog = productCatalog.filter((item) => item.id !== productId)
+    stockLedger = stockLedger.filter((item) => item.productId !== productId)
+
+    return { id: productId, name: current.name, sku: current.sku }
+  } catch (error) {
+    throw toAppError(error)
+  }
+}
+
 export const getInventoryMeta = () => {
   const categories = [...new Set([...PRODUCT_CATEGORIES, ...productCatalog.map((product) => product.category)])].sort()
   const brands = [...new Set(productCatalog.map((product) => product.brand))].sort()

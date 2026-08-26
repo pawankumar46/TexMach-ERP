@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 
 export const Header = ({ user, onMenu }) => {
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-line/80 bg-white/80 shadow-[0_1px_0_rgb(255_255_255/0.6)_inset] backdrop-blur-xl">
       <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <Button variant="ghost" size="sm" className="lg:hidden" onClick={onMenu} aria-label="Open navigation">

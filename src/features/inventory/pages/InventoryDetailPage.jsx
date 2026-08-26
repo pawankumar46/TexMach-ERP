@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
-import { Link, useParams } from "react-router-dom"
-import { ArrowLeft, ExternalLink, Pencil } from "lucide-react"
+import { Link, useNavigate, useParams } from "react-router-dom"
+import { ArrowLeft, ExternalLink, Pencil, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 import { PageHeader } from "@/components/layout/PageHeader"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { ErrorState } from "@/components/ui/error-state"
 import { PageSkeleton } from "@/components/ui/loading-skeleton"
 import { ProductImage } from "@/components/inventory/ProductImage"
@@ -13,18 +15,23 @@ import { ProductFormDialog } from "@/features/inventory/components/ProductFormDi
 import { getInventoryItemById } from "@/services/inventory.service"
 import { useAuthStore } from "@/store/useAuthStore"
 import { useFacilityStore } from "@/store/useFacilityStore"
+import { useInventoryStore } from "@/store/useInventoryStore"
 import { formatCurrency, formatNumber } from "@/lib/utils"
 import { getFacilityById } from "@/data/facilities"
 import { USER_ROLES, canManageInventoryItem } from "@/constants/roles"
 
 export const InventoryDetailPage = () => {
   const { productId } = useParams()
+  const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const selectedFacilityId = useFacilityStore((state) => state.selectedFacilityId)
+  const deleteItem = useInventoryStore((state) => state.deleteItem)
+  const mutating = useInventoryStore((state) => state.mutating)
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [formOpen, setFormOpen] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -66,6 +73,16 @@ export const InventoryDetailPage = () => {
   const hideQty = user?.role === USER_ROLES.VENDOR
   const canEdit = canManageInventoryItem(user, product)
 
+  const handleDelete = async () => {
+    try {
+      await deleteItem(product.id)
+      toast.success(`${product.name} removed from the catalog.`)
+      navigate("/inventory")
+    } catch (deleteError) {
+      toast.error(deleteError.message)
+    }
+  }
+
   return (
     <div>
       <Link
@@ -80,10 +97,16 @@ export const InventoryDetailPage = () => {
         actions={
           <div className="flex flex-wrap gap-2">
             {canEdit ? (
-              <Button variant="secondary" onClick={() => setFormOpen(true)}>
-                <Pencil className="h-4 w-4" />
-                Edit item
-              </Button>
+              <>
+                <Button variant="secondary" onClick={() => setFormOpen(true)}>
+                  <Pencil className="h-4 w-4" />
+                  Edit item
+                </Button>
+                <Button variant="danger" onClick={() => setConfirmOpen(true)}>
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </Button>
+              </>
             ) : null}
             {product.catalogUrl ? (
               <a
@@ -99,7 +122,7 @@ export const InventoryDetailPage = () => {
         }
       />
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-        <Card className="p-0 overflow-hidden">
+        <Card className="overflow-hidden p-0">
           <ProductImage src={product.image} alt={product.name} className="h-64 w-full" />
         </Card>
         <Card>
@@ -167,6 +190,16 @@ export const InventoryDetailPage = () => {
         product={product}
         onClose={() => setFormOpen(false)}
         onSaved={setProduct}
+      />
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Delete catalog item?"
+        message={`Remove “${product.name}” (${product.sku}) from the catalog? Related warehouse stock for this SKU will also be cleared.`}
+        confirmLabel="Delete item"
+        loading={mutating}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={handleDelete}
       />
     </div>
   )

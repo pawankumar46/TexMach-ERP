@@ -79,3 +79,7 @@ export const completeScanTask = async ({ taskId, scannedCode, userName }) => {
     throw toAppError(error)
   }
 }
+
+export const removeProductScanTasks = (productId) => {
+  tasks = tasks.filter((entry) => entry.productId !== productId)
+}

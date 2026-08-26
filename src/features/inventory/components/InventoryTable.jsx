@@ -18,7 +18,7 @@ const productStatus = (item) => {
   return "in_stock"
 }
 
-export const InventoryTable = ({ items, onEdit }) => {
+export const InventoryTable = ({ items, onEdit, onDelete }) => {
   const user = useAuthStore((state) => state.user)
   const hideStock = user?.role === USER_ROLES.VENDOR
   const showActions = items.some((item) => canManageInventoryItem(user, item))
@@ -66,9 +66,14 @@ export const InventoryTable = ({ items, onEdit }) => {
               {showActions ? (
                 <td className="px-4 py-3">
                   {canManageInventoryItem(user, item) ? (
-                    <Button size="sm" variant="secondary" onClick={() => onEdit(item)}>
-                      Edit
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                      <Button size="sm" variant="secondary" onClick={() => onEdit(item)}>
+                        Edit
+                      </Button>
+                      <Button size="sm" variant="danger" onClick={() => onDelete(item)}>
+                        Delete
+                      </Button>
+                    </div>
                   ) : null}
                 </td>
               ) : null}

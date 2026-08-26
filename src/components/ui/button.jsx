@@ -2,12 +2,13 @@ import { cn } from "@/lib/utils"
 
 const variants = {
   primary:
-    "bg-navy-800 text-white hover:bg-navy-700 shadow-sm disabled:bg-slate-300",
+    "bg-navy-800 text-white shadow-sm hover:bg-navy-700 hover:shadow-md active:scale-[0.98] disabled:bg-slate-300 disabled:shadow-none",
   secondary:
-    "bg-white text-navy-900 border border-line hover:bg-navy-50 disabled:text-slate-400",
-  ghost: "text-navy-800 hover:bg-navy-50",
-  danger: "bg-red-600 text-white hover:bg-red-700 disabled:bg-slate-300",
-  gold: "bg-gold-500 text-white hover:bg-amber-600",
+    "bg-white text-navy-900 border border-line shadow-sm hover:bg-navy-50 hover:border-navy-100 active:scale-[0.98] disabled:text-slate-400 disabled:shadow-none",
+  ghost: "text-navy-800 hover:bg-navy-50 active:scale-[0.98]",
+  danger:
+    "bg-red-600 text-white shadow-sm hover:bg-red-700 active:scale-[0.98] disabled:bg-slate-300 disabled:shadow-none",
+  gold: "bg-gold-500 text-white shadow-sm hover:bg-amber-600 hover:shadow-md active:scale-[0.98]",
 }
 
 const sizes = {
@@ -30,7 +31,7 @@ export const Button = ({
     <button
       type={type}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors duration-200 disabled:cursor-not-allowed",
+        "inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-[color,background-color,box-shadow,transform] duration-200 ease-out disabled:cursor-not-allowed",
         variants[variant],
         sizes[size],
         className,
