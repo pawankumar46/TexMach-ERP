@@ -186,7 +186,7 @@ export const StockPage = () => {
 
       {!loading && !error && items.length ? (
         <div className="overflow-x-auto rounded-2xl border border-line bg-white shadow-sm">
-          <table className="w-full min-w-[64rem] text-left text-sm">
+          <table className="w-full min-w-5xl text-left text-sm">
             <thead className="bg-navy-50 text-xs uppercase text-navy-800">
               <tr>
                 <th className="px-4 py-3">Item</th>
