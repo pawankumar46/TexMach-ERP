@@ -1,8 +1,7 @@
 import { delay } from "@/lib/utils"
 import { toAppError } from "@/lib/api-errors"
-import { SCAN_TASKS } from "@/data/inventory-seed"
-import { adjustStock } from "@/services/stock.service"
-import { getStockLedgerSnapshot } from "@/services/inventory.service"
+import { SCAN_TASKS } from "@/data/scan-seed"
+import { SCAN_TASK_TYPES, SCRAP_DISPOSITIONS } from "@/constants/scan-tasks"
 
 let tasks = SCAN_TASKS.map((task) => ({ ...task }))
 
@@ -16,17 +15,24 @@ export const getScanTasks = async ({ user, selectedFacilityId, type } = {}) => {
           ? null
           : user?.facilityIds ?? []
 
+    const scopedProductIds = Array.isArray(user?.productIds) ? new Set(user.productIds) : null
+
     return tasks.filter((task) => {
       const inScope = !facilityIds || facilityIds.includes(task.facilityId)
+      const inProductScope = !scopedProductIds || scopedProductIds.has(task.productId)
       const matchesType = !type || type === "all" || task.type === type
-      return inScope && matchesType
+      return inScope && inProductScope && matchesType
     })
   } catch (error) {
     throw toAppError(error)
   }
 }
 
-export const completeScanTask = async ({ taskId, scannedCode, userName }) => {
+export const completeScanTask = async ({
+  taskId,
+  scannedCode,
+  disposition = null,
+}) => {
   try {
     await delay(480)
     const task = tasks.find((entry) => entry.id === taskId)
@@ -36,42 +42,34 @@ export const completeScanTask = async ({ taskId, scannedCode, userName }) => {
     }
 
     if (task.status === "completed") {
-      throw new Error("This machine was already scanned.")
+      throw new Error("This component was already scanned.")
     }
 
     const normalizedScan = String(scannedCode || "").replace(/\s+/g, "").toLowerCase()
     const expected = String(task.barcode || "").replace(/\s+/g, "").toLowerCase()
 
     if (normalizedScan !== expected) {
-      throw new Error("That code does not match this machine. Check the label and try again.")
+      throw new Error("That code does not match this component. Check the label and try again.")
     }
 
-    const stock = getStockLedgerSnapshot().find(
-      (item) => item.productId === task.productId && item.facilityId === task.facilityId,
-    )
-
-    if (stock && (task.type === "grn" || task.type === "putaway")) {
-      await adjustStock({
-        stockId: stock.id,
-        quantityChange: task.expectedQty,
-        reason: `${task.type.toUpperCase()} ${task.reference}`,
-        movementType: task.type === "grn" ? "grn" : "putaway",
-        userName,
-      })
-    }
-
-    if (stock && task.type === "picking") {
-      await adjustStock({
-        stockId: stock.id,
-        quantityChange: -Math.min(task.expectedQty, stock.available || stock.quantity),
-        reason: `Picking ${task.reference}`,
-        movementType: "picking",
-        userName,
-      })
+    if (task.type === SCAN_TASK_TYPES.SCRAP) {
+      if (
+        disposition !== SCRAP_DISPOSITIONS.RECOVERABLE &&
+        disposition !== SCRAP_DISPOSITIONS.FINAL
+      ) {
+        throw new Error("Choose recoverable scrape or scrape before finishing.")
+      }
     }
 
     tasks = tasks.map((entry) =>
-      entry.id === taskId ? { ...entry, status: "completed", completedAt: new Date().toISOString() } : entry,
+      entry.id === taskId
+        ? {
+            ...entry,
+            status: "completed",
+            disposition: task.type === SCAN_TASK_TYPES.SCRAP ? disposition : null,
+            completedAt: new Date().toISOString(),
+          }
+        : entry,
     )
 
     return tasks.find((entry) => entry.id === taskId)

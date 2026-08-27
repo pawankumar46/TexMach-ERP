@@ -13,6 +13,7 @@ export const useStockStore = create((set, get) => ({
   filters: {
     search: "",
     status: "all",
+    facilityId: "all",
   },
   setFilters: (partial) => {
     set({ filters: { ...get().filters, ...partial } })

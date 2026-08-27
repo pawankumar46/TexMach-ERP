@@ -14,14 +14,21 @@ import { Dialog } from "@/components/ui/dialog"
 import { useScanStore } from "@/store/useScanStore"
 import { useFacilityStore } from "@/store/useFacilityStore"
 import { getFacilityById } from "@/data/facilities"
-import { SCAN_TASK_HINTS, SCAN_TASK_TYPES, getScanTaskLabel } from "@/constants/scan-tasks"
+import {
+  SCAN_TASK_HINTS,
+  SCAN_TASK_TYPES,
+  SCRAP_DISPOSITIONS,
+  SCRAP_DISPOSITION_HINTS,
+  SCRAP_DISPOSITION_LABELS,
+  getScanTaskLabel,
+} from "@/constants/scan-tasks"
 
 const TASK_TABS = [
   { id: "all", label: "Everything" },
-  { id: SCAN_TASK_TYPES.GRN, label: "New arrivals" },
-  { id: SCAN_TASK_TYPES.PUTAWAY, label: "Put away" },
-  { id: SCAN_TASK_TYPES.PICKING, label: "Going out" },
-  { id: SCAN_TASK_TYPES.CYCLE_COUNT, label: "Stock check" },
+  { id: SCAN_TASK_TYPES.ASSIGN_WAREHOUSE, label: "Assign to warehouse" },
+  { id: SCAN_TASK_TYPES.RETAIN_IN_STORE, label: "Retain in store" },
+  { id: SCAN_TASK_TYPES.SCRAP, label: "Scrape" },
+  { id: SCAN_TASK_TYPES.EXCHANGE, label: "Exchange" },
 ]
 
 export const ScanPage = () => {
@@ -36,15 +43,24 @@ export const ScanPage = () => {
   const selectedFacilityId = useFacilityStore((state) => state.selectedFacilityId)
   const [activeTask, setActiveTask] = useState(null)
   const [scanValue, setScanValue] = useState("")
+  const [scrapDisposition, setScrapDisposition] = useState(SCRAP_DISPOSITIONS.RECOVERABLE)
 
   useEffect(() => {
     fetchTasks()
   }, [fetchTasks, activeType, selectedFacilityId])
 
+  const openScan = (task) => {
+    setActiveTask(task)
+    setScanValue("")
+    setScrapDisposition(SCRAP_DISPOSITIONS.RECOVERABLE)
+  }
+
   const handleComplete = async () => {
     try {
-      await completeTask(activeTask.id, scanValue)
-      toast.success("Done. The system has recorded this scan.")
+      const disposition =
+        activeTask?.type === SCAN_TASK_TYPES.SCRAP ? scrapDisposition : null
+      await completeTask(activeTask.id, scanValue, disposition)
+      toast.success("Done. The system has recorded this component scan.")
       setActiveTask(null)
       setScanValue("")
     } catch (completeError) {
@@ -52,12 +68,37 @@ export const ScanPage = () => {
     }
   }
 
+  const scrapReady =
+    activeTask?.type !== SCAN_TASK_TYPES.SCRAP || Boolean(scrapDisposition)
+
   return (
     <div>
       <PageHeader
-        title="Scan a machine"
-        description="Point a handheld scanner at the barcode on the machine. That tells the system it arrived, it was put on a shelf, it went out to a customer, or it is still in the store."
+        title="Scan a component"
+        description="First scan and assign a component to a warehouse. Then retain it in store, scrape it (recoverable or final), or exchange it."
       />
+
+      <Card className="mb-5 border-navy-100 bg-navy-50/70 p-4">
+        <ol className="grid gap-2 text-sm text-navy-900 sm:grid-cols-2 lg:grid-cols-4">
+          <li>
+            <span className="font-semibold">1. Assign to warehouse</span>
+            <p className="text-xs text-muted">Scan the part and put it on a venue bin.</p>
+          </li>
+          <li>
+            <span className="font-semibold">2. Retain in store</span>
+            <p className="text-xs text-muted">Keep the component available in the store.</p>
+          </li>
+          <li>
+            <span className="font-semibold">3. Scrape</span>
+            <p className="text-xs text-muted">Recoverable scrape or final scrape.</p>
+          </li>
+          <li>
+            <span className="font-semibold">4. Exchange</span>
+            <p className="text-xs text-muted">Swap / replace the component.</p>
+          </li>
+        </ol>
+      </Card>
+
       <div className="mb-5 flex gap-2 overflow-x-auto pb-1">
         {TASK_TABS.map((tab) => (
           <button
@@ -65,7 +106,9 @@ export const ScanPage = () => {
             type="button"
             onClick={() => setActiveType(tab.id)}
             className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold ${
-              activeType === tab.id ? "bg-navy-800 text-white" : "bg-white text-navy-800 border border-line"
+              activeType === tab.id
+                ? "bg-navy-800 text-white"
+                : "border border-line bg-white text-navy-800"
             }`}
           >
             {tab.label}
@@ -79,7 +122,7 @@ export const ScanPage = () => {
         <EmptyState
           icon={ScanLine}
           title="Nothing to scan"
-          description="There are no machines waiting to be scanned at this store."
+          description="There are no components waiting to be scanned for this venue."
         />
       ) : null}
 
@@ -87,7 +130,6 @@ export const ScanPage = () => {
         <div className="grid gap-4 md:grid-cols-2">
           {tasks.map((task) => {
             const facility = getFacilityById(task.facilityId)
-            const qtyLabel = task.expectedQty === 1 ? "1 machine" : `${task.expectedQty} machines`
 
             return (
               <Card key={task.id} className="flex gap-4">
@@ -99,20 +141,17 @@ export const ScanPage = () => {
                       {task.status === "completed" ? "Finished" : "Not scanned yet"}
                     </Badge>
                   </div>
-                  <p className="truncate font-semibold text-navy-900">{task.productName}</p>
-                  <p className="text-xs leading-5 text-muted">{SCAN_TASK_HINTS[task.type]}</p>
+                  <p className="truncate font-semibold text-navy-900">{task.componentName}</p>
+                  <p className="font-mono text-xs text-navy-700">{task.componentId}</p>
+                  <p className="text-xs text-muted">
+                    {task.variantName} · for {task.productName}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-muted">{SCAN_TASK_HINTS[task.type]}</p>
                   <p className="mt-1 text-xs text-muted">
-                    {qtyLabel} · {facility?.name} · shelf {task.bin}
+                    {facility?.name} · bin {task.bin} · {task.reference}
                   </p>
                   {task.status !== "completed" ? (
-                    <Button
-                      size="sm"
-                      className="mt-3"
-                      onClick={() => {
-                        setActiveTask(task)
-                        setScanValue("")
-                      }}
-                    >
+                    <Button size="sm" className="mt-3" onClick={() => openScan(task)}>
                       Scan now
                     </Button>
                   ) : null}
@@ -126,10 +165,10 @@ export const ScanPage = () => {
       <Dialog
         open={Boolean(activeTask)}
         onClose={() => setActiveTask(null)}
-        title="Scan this machine"
+        title="Scan this component"
         description={
           activeTask
-            ? `${SCAN_TASK_HINTS[activeTask.type]} The code on the machine should be ${activeTask.barcode}.`
+            ? `${SCAN_TASK_HINTS[activeTask.type]} Expected code: ${activeTask.barcode}.`
             : ""
         }
         footer={
@@ -140,14 +179,54 @@ export const ScanPage = () => {
             <Button
               onClick={handleComplete}
               loading={Boolean(completingId)}
-              disabled={!scanValue}
+              disabled={!scanValue || !scrapReady}
             >
               Done, I scanned it
             </Button>
           </div>
         }
       >
-        <Label htmlFor="scan">Machine code</Label>
+        {activeTask ? (
+          <div className="mb-4 rounded-xl border border-line bg-slate-50 p-3 text-sm">
+            <p className="font-semibold text-navy-900">{activeTask.componentName}</p>
+            <p className="font-mono text-xs text-muted">{activeTask.componentId}</p>
+            <p className="mt-1 text-xs text-muted">
+              {activeTask.variantName} · {activeTask.productName}
+            </p>
+          </div>
+        ) : null}
+
+        {activeTask?.type === SCAN_TASK_TYPES.SCRAP ? (
+          <fieldset className="mb-4 space-y-2">
+            <legend className="mb-1.5 text-sm font-medium text-slate-700">Scrape type</legend>
+            {[SCRAP_DISPOSITIONS.RECOVERABLE, SCRAP_DISPOSITIONS.FINAL].map((option) => (
+              <label
+                key={option}
+                className={`flex cursor-pointer gap-3 rounded-xl border px-3 py-2.5 ${
+                  scrapDisposition === option
+                    ? "border-navy-600 bg-navy-50"
+                    : "border-line bg-white"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="scrap-disposition"
+                  className="mt-1"
+                  checked={scrapDisposition === option}
+                  onChange={() => setScrapDisposition(option)}
+                />
+                <span>
+                  <span className="block text-sm font-semibold text-navy-900">
+                    {SCRAP_DISPOSITION_LABELS[option]}
+                  </span>
+                  <span className="block text-xs text-muted">{SCRAP_DISPOSITION_HINTS[option]}</span>
+                </span>
+              </label>
+            ))}
+          </fieldset>
+        ) : null}
+
+        <Label htmlFor="scan">Component code</Label>
         <Input
           id="scan"
           value={scanValue}

@@ -8,6 +8,11 @@ export const MOVEMENT_TYPES = {
   GRN: "grn",
   PUTAWAY: "putaway",
   PICKING: "picking",
+  ASSIGN_WAREHOUSE: "assign_warehouse",
+  RETAIN_IN_STORE: "retain_in_store",
+  SCRAP_RECOVERABLE: "scrap_recoverable",
+  SCRAP_FINAL: "scrap_final",
+  EXCHANGE: "exchange",
 }
 
 export const MOVEMENT_TYPE_LABELS = {
@@ -20,6 +25,11 @@ export const MOVEMENT_TYPE_LABELS = {
   [MOVEMENT_TYPES.GRN]: "Received from vendor",
   [MOVEMENT_TYPES.PUTAWAY]: "Stored in the warehouse",
   [MOVEMENT_TYPES.PICKING]: "Picked for an order",
+  [MOVEMENT_TYPES.ASSIGN_WAREHOUSE]: "Assigned to warehouse",
+  [MOVEMENT_TYPES.RETAIN_IN_STORE]: "Retained in store",
+  [MOVEMENT_TYPES.SCRAP_RECOVERABLE]: "Recoverable scrape",
+  [MOVEMENT_TYPES.SCRAP_FINAL]: "Scraped",
+  [MOVEMENT_TYPES.EXCHANGE]: "Exchanged",
 }
 
 export const MOVEMENT_TYPE_HINTS = {
@@ -32,6 +42,11 @@ export const MOVEMENT_TYPE_HINTS = {
   [MOVEMENT_TYPES.GRN]: "A vendor delivery was booked into stock",
   [MOVEMENT_TYPES.PUTAWAY]: "Received goods were placed on a shelf or bin",
   [MOVEMENT_TYPES.PICKING]: "Items were taken out to fulfil a dispatch",
+  [MOVEMENT_TYPES.ASSIGN_WAREHOUSE]: "Component was scanned and assigned to a warehouse bin",
+  [MOVEMENT_TYPES.RETAIN_IN_STORE]: "Component was scanned and kept in the store",
+  [MOVEMENT_TYPES.SCRAP_RECOVERABLE]: "Component scraped but marked recoverable",
+  [MOVEMENT_TYPES.SCRAP_FINAL]: "Component scraped and written off",
+  [MOVEMENT_TYPES.EXCHANGE]: "Component was exchanged / swapped",
 }
 
 export const formatQuantityChange = (quantityChange) => {

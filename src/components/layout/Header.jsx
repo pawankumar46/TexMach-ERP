@@ -14,7 +14,7 @@ export const Header = ({ user, onMenu }) => {
           </Button>
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-navy-900">Hari Chand Anand & Co.</p>
-            <p className="hidden text-xs text-muted sm:block">Multi-facility inventory & warehouse operations</p>
+            <p className="hidden text-xs text-muted sm:block">Multi-venue inventory & warehouse operations</p>
           </div>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">

@@ -1,3 +1,5 @@
+import { VENUE_TYPES } from "@/constants/venue-types"
+
 export const FACILITIES = [
   {
     id: "del-hq",
@@ -6,7 +8,7 @@ export const FACILITIES = [
     city: "New Delhi",
     region: "North",
     address: "Okhla Industrial Area, Phase II",
-    type: "flagship",
+    type: VENUE_TYPES.DISTRIBUTOR_OFFICE,
     bins: ["A-01", "A-02", "B-12", "FG-01"],
     capacityUnits: 420,
   },
@@ -17,7 +19,7 @@ export const FACILITIES = [
     city: "Gurugram",
     region: "North",
     address: "IMT Manesar, Sector 8",
-    type: "warehouse",
+    type: VENUE_TYPES.GODOWN_WAREHOUSE,
     bins: ["WH-01", "WH-02", "WH-14", "QC-01"],
     capacityUnits: 980,
   },
@@ -28,7 +30,7 @@ export const FACILITIES = [
     city: "Mumbai",
     region: "West",
     address: "Andheri East, MIDC",
-    type: "regional",
+    type: VENUE_TYPES.DISTRIBUTOR_OFFICE,
     bins: ["M-01", "M-02", "M-07"],
     capacityUnits: 260,
   },
@@ -39,7 +41,7 @@ export const FACILITIES = [
     city: "Bengaluru",
     region: "South",
     address: "Peenya Industrial Area",
-    type: "service",
+    type: VENUE_TYPES.DISTRIBUTOR_OFFICE,
     bins: ["S-01", "S-02", "SPARES-1"],
     capacityUnits: 180,
   },
@@ -50,7 +52,7 @@ export const FACILITIES = [
     city: "Ahmedabad",
     region: "West",
     address: "Changodar Industrial Estate",
-    type: "plant",
+    type: VENUE_TYPES.GODOWN_WAREHOUSE,
     bins: ["P-01", "P-02", "P-08", "WIP-02"],
     capacityUnits: 540,
   },

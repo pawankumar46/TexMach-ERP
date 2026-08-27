@@ -19,8 +19,8 @@ const NAV_ITEMS = [
   { to: "/dashboard", label: "Home", icon: LayoutDashboard, permission: PERMISSIONS.INVENTORY_VIEW },
   { to: "/inventory", label: "Inventory", icon: Package, permission: PERMISSIONS.INVENTORY_VIEW },
   { to: "/stock", label: "Stock ledger", icon: Warehouse, permission: PERMISSIONS.STOCK_VIEW },
-  { to: "/warehouses", label: "Facilities", icon: Building2, permission: PERMISSIONS.WAREHOUSE_VIEW },
-  { to: "/scan", label: "Scan machines", icon: ScanLine, permission: PERMISSIONS.SCAN_USE },
+  { to: "/warehouses", label: "Venues", icon: Building2, permission: PERMISSIONS.WAREHOUSE_VIEW },
+  { to: "/scan", label: "Scan components", icon: ScanLine, permission: PERMISSIONS.SCAN_USE },
   { to: "/users", label: "Users & roles", icon: Users, permission: PERMISSIONS.USERS_MANAGE },
 ]
 
@@ -87,6 +87,9 @@ export const Sidebar = ({ user, can, onLogout, open, onClose }) => {
           <p className="text-xs text-slate-400">{user?.title}</p>
           {user?.role === USER_ROLES.VENDOR ? (
             <p className="mt-2 text-xs text-amber-300">Vendor portal · add & edit catalog</p>
+          ) : null}
+          {user?.role === USER_ROLES.CATEGORY_MANAGER ? (
+            <p className="mt-2 text-xs text-amber-300">Category scope · assigned machines & BOM</p>
           ) : null}
           <Button
             variant="ghost"

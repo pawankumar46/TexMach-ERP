@@ -26,12 +26,17 @@ export const useScanStore = create((set, get) => ({
       set({ error: error.message, loading: false })
     }
   },
-  completeTask: async (taskId, scannedCode) => {
+  completeTask: async (taskId, scannedCode, disposition = null) => {
     const user = useAuthStore.getState().user
     set({ completingId: taskId, error: null })
 
     try {
-      await completeScanTask({ taskId, scannedCode, userName: user?.name })
+      await completeScanTask({
+        taskId,
+        scannedCode,
+        disposition,
+        userName: user?.name,
+      })
       set({ completingId: null })
       await get().fetchTasks()
     } catch (error) {

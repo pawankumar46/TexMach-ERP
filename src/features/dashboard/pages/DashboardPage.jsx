@@ -48,9 +48,15 @@ export const DashboardPage = () => {
     if (user?.role !== USER_ROLES.VENDOR) {
       fetchStock()
       fetchMovements()
+    }
+    if (user?.role !== USER_ROLES.VENDOR && user?.role !== USER_ROLES.CATEGORY_MANAGER) {
       fetchTasks()
     }
-    if (user?.role === USER_ROLES.SUPER_ADMIN || user?.role === USER_ROLES.STORE_MANAGER) {
+    if (
+      user?.role === USER_ROLES.SUPER_ADMIN ||
+      user?.role === USER_ROLES.STORE_MANAGER ||
+      user?.role === USER_ROLES.CATEGORY_MANAGER
+    ) {
       fetchFacilities()
     }
   }, [fetchInventory, fetchStock, fetchMovements, fetchFacilities, fetchTasks, user, selectedFacilityId])
@@ -112,6 +118,55 @@ export const DashboardPage = () => {
     )
   }
 
+  if (user?.role === USER_ROLES.CATEGORY_MANAGER) {
+    return (
+      <div>
+        <PageHeader
+          title={`Welcome, ${user.name}`}
+          description={`Your category covers ${user.productScopeLabel}. Open a machine to edit details or review its bill of materials and component stock.`}
+          actions={
+            <Link
+              to="/inventory"
+              className="inline-flex h-10 items-center gap-2 rounded-lg bg-navy-800 px-4 text-sm font-semibold text-white hover:bg-navy-700"
+            >
+              Open category inventory <ArrowRight className="h-4 w-4" />
+            </Link>
+          }
+        />
+        <Card className="mb-6 border-navy-100 bg-navy-50">
+          <p className="text-sm text-navy-900">
+            You only see assigned machines and their components. Stock, venues, and BOM data outside this category stay hidden.
+          </p>
+        </Card>
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <SummaryCard icon={Package} label="Assigned machines" value={formatNumber(skuCount)} hint="Machines in your category scope" />
+          <SummaryCard icon={Building2} label="Units on hand" value={formatNumber(totalUnits)} hint="Across venues for your machines" />
+          <SummaryCard
+            icon={AlertTriangle}
+            label="Running low"
+            value={formatNumber(lowStock.length)}
+            hint="Assigned machines that need attention"
+            tone="amber"
+          />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {items.map((item) => (
+            <Link key={item.id} to={`/inventory/${item.id}`}>
+              <Card interactive className="flex gap-4">
+                <ProductImage src={item.image} alt={item.name} className="h-20 w-20 rounded-xl" />
+                <div>
+                  <p className="text-xs font-semibold text-navy-600">{item.sku}</p>
+                  <p className="font-semibold text-navy-900">{item.name}</p>
+                  <p className="text-xs text-muted">{item.category} · BOM + stock</p>
+                </div>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div>
       <PageHeader
@@ -123,7 +178,7 @@ export const DashboardPage = () => {
               to="/scan"
               className="inline-flex h-10 items-center gap-2 rounded-lg bg-navy-800 px-4 text-sm font-semibold text-white hover:bg-navy-700"
             >
-              Scan waiting machines <ArrowRight className="h-4 w-4" />
+              Scan waiting components <ArrowRight className="h-4 w-4" />
             </Link>
           ) : null
         }
@@ -177,11 +232,11 @@ export const DashboardPage = () => {
 
         <Card>
           <div className="mb-1 flex items-center justify-between gap-2">
-            <h2 className="text-base font-semibold text-navy-900">Machines waiting to be scanned</h2>
+            <h2 className="text-base font-semibold text-navy-900">Components waiting to be scanned</h2>
             <Badge tone="navy">{openTasks.length} left</Badge>
           </div>
           <p className="mb-4 text-sm leading-6 text-muted">
-            A checklist for store staff. Point a handheld scanner at the machine — like ticking an item off a list — so the system knows what arrived, what was stored, or what went out.
+            Assign parts to a warehouse, retain them in store, scrape them, or exchange them after scanning.
           </p>
           {openTasks.length ? (
             <ul className="space-y-3">
@@ -190,7 +245,9 @@ export const DashboardPage = () => {
                   <ScanLine className="mt-0.5 h-4 w-4 shrink-0 text-navy-700" />
                   <div>
                     <p className="text-sm font-medium text-navy-900">{getScanTaskLabel(task.type)}</p>
-                    <p className="text-xs text-muted">{task.productName}</p>
+                    <p className="text-xs text-muted">
+                      {task.componentName ?? task.productName}
+                    </p>
                   </div>
                 </li>
               ))}
@@ -199,7 +256,7 @@ export const DashboardPage = () => {
             <p className="text-sm text-muted">Nothing is waiting to be scanned.</p>
           )}
           <Link to="/scan" className="mt-4 inline-flex text-sm font-medium text-navy-700 hover:underline">
-            Go scan these machines
+            Go scan these components
           </Link>
         </Card>
       </div>

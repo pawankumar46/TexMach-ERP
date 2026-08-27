@@ -25,15 +25,15 @@ export const FacilitySwitcher = () => {
   return (
     <label className="flex min-w-0 items-center gap-2">
       <Building2 className="hidden h-4 w-4 shrink-0 text-navy-700 sm:block" aria-hidden="true" />
-      <span className="sr-only">Facility</span>
+      <span className="sr-only">Venue</span>
       <Select
         value={selectedFacilityId}
         disabled={locked}
         onChange={(event) => setFacility(event.target.value)}
         className="max-w-52 sm:max-w-64"
-        aria-label="Select facility"
+        aria-label="Select venue"
       >
-        {!locked ? <option value={ALL_FACILITIES}>All facilities</option> : null}
+        {!locked ? <option value={ALL_FACILITIES}>All venues</option> : null}
         {options.map((facility) => (
           <option key={facility.id} value={facility.id}>
             {facility.name}

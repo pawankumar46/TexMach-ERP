@@ -10,10 +10,10 @@ Blueprint modules delivered in this demo:
 
 - **User / role management** — four personas with facility-scoped access
 - **Inventory & stock management** — SKU master with photos, names, stock status, dummy costs, and catalog add/edit/delete
-- **Multi-facility warehouse management** — five Indian facilities, bin locations, utilization, transfers
-- **Barcode / RFID app** — GRN, putaway, picking, and cycle-count task queue with simulated scanning
+- **Venues** — distributor offices and godowns / warehouses, with type filter, bin locations, utilization, transfers
+- **Barcode / RFID app** — Component scan queue: assign to warehouse, retain in store, scrape (recoverable or final), exchange
 
-Homepage is a **sign-in screen** (email + password). After login, Home shows KPIs for the selected role and facility scope.
+Homepage is a **sign-in screen** (email + password). After login, Home shows KPIs for the selected role and venue scope.
 
 ### Demo sign-in
 
@@ -22,7 +22,7 @@ Homepage is a **sign-in screen** (email + password). After login, Home shows KPI
 | Super Admin | ananya.sharma@grouphca.com | Admin@123 |
 | Store Manager | rohit.mehra@grouphca.com | Manager@123 |
 | Store Executive | priya.nair@grouphca.com | Staff@123 |
-| Vendor (Duke) | kenji.sato@duke-oem.example | Vendor@123 |
+| Category Manager | neha.verma@grouphca.com | Category@123 |
 
 The login page includes a collapsible **Demo accounts for review** panel to fill the form quickly.
 
@@ -30,24 +30,31 @@ The login page includes a collapsible **Demo accounts for review** panel to fill
 
 | Persona | Demo user | What they see |
 | --- | --- | --- |
-| Super Admin | Ananya Sharma | All five facilities, users & roles, consolidated ledger |
-| Store Manager | Rohit Mehra | Delhi, Gurugram, Mumbai — transfers and facility KPIs |
+| Super Admin | Ananya Sharma | All five venues, users & roles, consolidated ledger |
+| Store Manager | Rohit Mehra | Delhi, Gurugram, Mumbai — transfers and venue KPIs |
 | Store Executive | Priya Nair | Delhi HQ only, plus the scan app |
 | Vendor | Kenji Sato | Duke catalog only. Can **add, edit, and delete** Duke items. No warehouse quantities, transfers, or scanning (PO/ASN is Phase 2) |
+| Category Manager | Neha Verma | Only **Spot Tacking (DY 160-20)** and **Pattern Sewing (DY 3020)** plus their BOM components and stock |
 
-### Facilities
+### Venues
 
-Delhi HQ Store, Gurugram Central Warehouse, Mumbai Regional Store, Bengaluru Service Hub, Ahmedabad Plant Store.
+| Venue | Type |
+| --- | --- |
+| Delhi HQ Store | Distributor Office |
+| Gurugram Central Warehouse | Godown / Warehouse |
+| Mumbai Regional Store | Distributor Office |
+| Bengaluru Service Hub | Distributor Office |
+| Ahmedabad Plant Store | Godown / Warehouse |
 
 ## Screens
 
 - `/` — Sign in (email + password)
 - `/dashboard` — Home KPIs, low-stock watchlist, recent movements in plain language
-- `/inventory` — Product grid and table (photo + name + SKU); **Add** / **Edit** / **Delete** for vendors, store managers, and Super Admin
-- `/inventory/:productId` — Product detail and stock by facility
-- `/stock` — Stock ledger, adjustments, transfers, movement history
-- `/warehouses` — Facility cards and consolidated vs facility toggle
-- `/scan` — Scan a machine when it arrives, is put away, goes out, or is counted
+- `/inventory` — Product grid and table; search machines **or BOM components** (shows parent machine + matched parts); **Add** / **Edit** / **Delete** for allowed roles
+- `/inventory/:productId` — Product detail, stock by facility, and **bill of materials** (52 components for each of the first five catalog machines). Click a BOM row to see facility stock quantities.
+- `/stock` — Stock ledger with search, **facility/location filter**, status filter, adjustments, transfers, and **Export Excel**
+- `/warehouses` — **Venues** (Distributor Office / Godown·Warehouse filter), cards, consolidated vs venue toggle
+- `/scan` — Scan **components**: assign to warehouse, retain in store, scrape (recoverable / final), or exchange. New arrivals removed.
 - `/users` — Persona matrix and demo user directory (Super Admin)
 
 ## Getting started
@@ -72,11 +79,12 @@ No backend URL is required. Stock changes live in memory for the browser session
 src/
 ├── components/          # Shared UI and app shell
 ├── constants/           # Roles, stock status, movement types
-├── data/                # Dummy catalog, facilities, personas, seed ledger
+├── data/                # Dummy catalog, facilities, personas, seed ledger, BOM
 ├── features/
 │   ├── auth/            # Login page and auth schema
 │   ├── dashboard/
 │   ├── inventory/
+│   │   └── components/  # Filters, grid/table, product form, BOM table
 │   ├── scan/
 │   ├── stock/
 │   ├── users/
@@ -107,9 +115,29 @@ VITE_APP_NAME=InvenTree
 
 ## Dependencies added
 
-React Router, Zustand, Tailwind CSS, Lucide, Framer Motion, React Hook Form, Zod, Sonner, `clsx`, `tailwind-merge`.
+React Router, Zustand, Tailwind CSS, Lucide, Framer Motion, React Hook Form, Zod, Sonner, `xlsx`, `clsx`, `tailwind-merge`.
 
 ## Changelog
+
+**2026-08-27** — Inventory search field includes a clear (X) control to reset the query.
+
+**2026-08-27** — Inventory search for terms like “needle” shows a **Matching components** table (component + parent machine) above machine cards. Machines that matched via BOM are sorted first.
+
+**2026-08-27** — Inventory search also matches BOM components. Results show the parent machine plus matched component name/ID/variant.
+
+**2026-08-26** — Scan flow redesigned for **components**: removed New arrivals. Actions are Assign to warehouse, Retain in store, Scrape (recoverable / final), and Exchange.
+
+**2026-08-26** — Added **Category Manager** persona (Neha Verma): scoped to specific machines and their BOM/stock. Cannot add new SKUs or use scan/users.
+
+**2026-08-26** — Renamed Facilities to **Venues**. Venue type filter: Distributor Office and Godown / Warehouse.
+
+**2026-08-26** — Stock ledger: filter by location/facility and Export Excel (`.xlsx`) for the currently filtered rows.
+
+**2026-08-26** — BOM components are now machine-specific for the first five catalog SKUs (spot tacking, pattern sewing, glue spray stand, edge binding/cementing, button machine), not a shared parts list.
+
+**2026-08-26** — BOM rows are clickable: a modal shows facility locations, bin, on-hand quantity, and available stock for that component.
+
+**2026-08-26** — Product detail now includes a Bill of Materials table (component ID/name, variant ID/name, estimated procure time, vendor count). First five catalog machines each have 52 seeded components.
 
 **2026-08-26** — Inventory delete: catalog managers can remove items from grid, table, and detail views with confirmation. Related stock, movements, and scan tasks for that SKU are cleared.
 

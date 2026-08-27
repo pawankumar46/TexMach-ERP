@@ -138,33 +138,6 @@ export const STOCK_MOVEMENTS = STOCK_ITEMS.slice(0, 36).map((item, index) => {
   }
 })
 
-const TASK_TYPES = ["grn", "putaway", "picking", "cycle_count"]
-
-export const SCAN_TASKS = STOCK_ITEMS.slice(0, 12).map((stock, index) => {
-  const product = PRODUCTS.find((entry) => entry.id === stock.productId)
-  const type = TASK_TYPES[index % TASK_TYPES.length]
-
-  return {
-    id: `task-${index + 1}`,
-    type,
-    status: index % 5 === 0 ? "completed" : "open",
-    productId: stock.productId,
-    sku: product?.sku,
-    productName: product?.name,
-    image: product?.image,
-    facilityId: stock.facilityId,
-    barcode: String(product?.sku || "").replace(/\s+/g, ""),
-    expectedQty: 1 + (index % 5),
-    bin: stock.bin,
-    reference:
-      type === "grn"
-        ? `GRN-2026-${120 + index}`
-        : type === "picking"
-          ? `PICK-884${index}`
-          : `WO-44${index}`,
-  }
-})
-
 export const getProductById = (productId) => {
   return PRODUCTS.find((product) => product.id === productId) ?? null
 }

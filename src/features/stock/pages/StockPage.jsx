@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
-import { PackageSearch } from "lucide-react"
+import { Download, PackageSearch } from "lucide-react"
+import { toast } from "sonner"
 import { PageHeader } from "@/components/layout/PageHeader"
 import { Input, Select } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -15,8 +16,9 @@ import { useStockStore } from "@/store/useStockStore"
 import { useFacilityStore } from "@/store/useFacilityStore"
 import { useAuthStore } from "@/store/useAuthStore"
 import { PERMISSIONS } from "@/constants/roles"
+import { FACILITIES, getFacilityById } from "@/data/facilities"
 import { formatDateTime, formatNumber } from "@/lib/utils"
-import { getFacilityById } from "@/data/facilities"
+import { exportStockLedgerToExcel } from "@/lib/export-stock-excel"
 import { StockMovementQty, StockMovementWhatHappened } from "@/components/inventory/StockMovementCopy"
 
 export const StockPage = () => {
@@ -33,6 +35,23 @@ export const StockPage = () => {
   const fetchMovements = useStockStore((state) => state.fetchMovements)
   const [adjusting, setAdjusting] = useState(null)
   const [transferring, setTransferring] = useState(null)
+  const [exporting, setExporting] = useState(false)
+
+  const assignedIds = user?.facilityIds ?? []
+  const facilityOptions = user?.canViewAllFacilities
+    ? FACILITIES
+    : FACILITIES.filter((facility) => assignedIds.includes(facility.id))
+
+  useEffect(() => {
+    if (filters.facilityId === "all") {
+      return
+    }
+
+    const stillAllowed = facilityOptions.some((facility) => facility.id === filters.facilityId)
+    if (!stillAllowed) {
+      setFilters({ facilityId: "all" })
+    }
+  }, [facilityOptions, filters.facilityId, setFilters])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -43,19 +62,59 @@ export const StockPage = () => {
     return () => window.clearTimeout(timer)
   }, [fetchStock, fetchMovements, filters, selectedFacilityId, user])
 
+  const handleExport = async () => {
+    if (!items.length) {
+      toast.error("Nothing to export for the current filters.")
+      return
+    }
+
+    setExporting(true)
+    try {
+      await exportStockLedgerToExcel(items)
+      toast.success("Stock ledger exported to Excel.")
+    } catch (exportError) {
+      toast.error(exportError.message || "Unable to export Excel file.")
+    } finally {
+      setExporting(false)
+    }
+  }
+
   return (
     <div>
       <PageHeader
         title="Stock ledger"
         description="On-hand, reserved, and available quantities by facility bin."
+        actions={
+          <Button
+            variant="secondary"
+            onClick={handleExport}
+            loading={exporting}
+            disabled={loading || !items.length}
+          >
+            <Download className="h-4 w-4" />
+            Export Excel
+          </Button>
+        }
       />
-      <div className="mb-5 grid gap-3 rounded-2xl border border-line bg-white p-4 shadow-sm sm:grid-cols-2">
+      <div className="mb-5 grid gap-3 rounded-2xl border border-line bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-3">
         <Input
           value={filters.search}
           onChange={(event) => setFilters({ search: event.target.value })}
           placeholder="Search SKU, product, or bin"
           aria-label="Search stock"
         />
+        <Select
+          value={filters.facilityId}
+          onChange={(event) => setFilters({ facilityId: event.target.value })}
+          aria-label="Filter by venue"
+        >
+          <option value="all">All venues</option>
+          {facilityOptions.map((facility) => (
+            <option key={facility.id} value={facility.id}>
+              {facility.name} ({facility.code})
+            </option>
+          ))}
+        </Select>
         <Select
           value={filters.status}
           onChange={(event) => setFilters({ status: event.target.value })}
@@ -84,7 +143,7 @@ export const StockPage = () => {
             <thead className="bg-navy-50 text-xs uppercase text-navy-800">
               <tr>
                 <th className="px-4 py-3">Item</th>
-                <th className="px-4 py-3">Facility / bin</th>
+                <th className="px-4 py-3">Venue / bin</th>
                 <th className="px-4 py-3">On hand</th>
                 <th className="px-4 py-3">Reserved</th>
                 <th className="px-4 py-3">Available</th>

@@ -10,11 +10,12 @@ import { CardGridSkeleton, TableSkeleton } from "@/components/ui/loading-skeleto
 import { InventoryFilters } from "@/features/inventory/components/InventoryFilters"
 import { InventoryCardGrid } from "@/features/inventory/components/InventoryCardGrid"
 import { InventoryTable } from "@/features/inventory/components/InventoryTable"
+import { InventoryComponentMatches } from "@/features/inventory/components/InventoryComponentMatches"
 import { ProductFormDialog } from "@/features/inventory/components/ProductFormDialog"
 import { useInventoryStore } from "@/store/useInventoryStore"
 import { useFacilityStore } from "@/store/useFacilityStore"
 import { useAuthStore } from "@/store/useAuthStore"
-import { PERMISSIONS } from "@/constants/roles"
+import { canCreateInventoryItem } from "@/constants/roles"
 
 export const InventoryPage = () => {
   const [view, setView] = useState("grid")
@@ -22,7 +23,6 @@ export const InventoryPage = () => {
   const [editing, setEditing] = useState(null)
   const [deleting, setDeleting] = useState(null)
   const user = useAuthStore((state) => state.user)
-  const can = useAuthStore((state) => state.can)
   const selectedFacilityId = useFacilityStore((state) => state.selectedFacilityId)
   const items = useInventoryStore((state) => state.items)
   const loading = useInventoryStore((state) => state.loading)
@@ -32,7 +32,7 @@ export const InventoryPage = () => {
   const setFilters = useInventoryStore((state) => state.setFilters)
   const fetchInventory = useInventoryStore((state) => state.fetchInventory)
   const deleteItem = useInventoryStore((state) => state.deleteItem)
-  const canManage = can(PERMISSIONS.INVENTORY_MANAGE)
+  const canCreate = canCreateInventoryItem(user)
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -71,12 +71,14 @@ export const InventoryPage = () => {
       <PageHeader
         title="Inventory management"
         description={
-          user?.brandFilter
-            ? `Add, update, or remove ${user.brandFilter} catalog items. Photos and names can be edited; HCA warehouse stock stays hidden.`
-            : "Machine catalog with photos and names from grouphca.com, mapped onto the Phase 1 stock ledger."
+          user?.productScopeLabel
+            ? `Category scope: ${user.productScopeLabel}. You can edit these machines and review their bill of materials and stock.`
+            : user?.brandFilter
+              ? `Add, update, or remove ${user.brandFilter} catalog items. Photos and names can be edited; HCA warehouse stock stays hidden.`
+              : "Machine catalog with photos and names from grouphca.com, mapped onto the Phase 1 stock ledger."
         }
         actions={
-          canManage ? (
+          canCreate ? (
             <Button onClick={openCreate}>
               <Plus className="h-4 w-4" />
               Add item
@@ -100,7 +102,7 @@ export const InventoryPage = () => {
           title="No inventory found"
           description="Try another search or add a catalog item."
           action={
-            canManage ? (
+            canCreate ? (
               <Button onClick={openCreate}>
                 <Plus className="h-4 w-4" />
                 Add item
@@ -109,11 +111,16 @@ export const InventoryPage = () => {
           }
         />
       ) : null}
-      {!loading && !error && items.length
-        ? view === "grid"
-          ? <InventoryCardGrid items={items} onEdit={openEdit} onDelete={setDeleting} />
-          : <InventoryTable items={items} onEdit={openEdit} onDelete={setDeleting} />
-        : null}
+      {!loading && !error && items.length ? (
+        <>
+          <InventoryComponentMatches items={items} search={filters.search} />
+          {view === "grid" ? (
+            <InventoryCardGrid items={items} onEdit={openEdit} onDelete={setDeleting} />
+          ) : (
+            <InventoryTable items={items} onEdit={openEdit} onDelete={setDeleting} />
+          )}
+        </>
+      ) : null}
 
       <ProductFormDialog
         open={formOpen}

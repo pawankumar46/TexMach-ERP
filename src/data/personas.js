@@ -35,7 +35,7 @@ export const PERSONAS = [
     facilityIds: ["del-hq"],
     canViewAllFacilities: false,
     summary:
-      "Shop-floor receiving, putaway, picking, and cycle counts with barcode scanning at a single facility.",
+      "Shop-floor component scanning — assign to warehouse, retain, scrape, or exchange at a single facility.",
   },
   {
     id: "kenji-sato",
@@ -50,6 +50,20 @@ export const PERSONAS = [
     summary:
       "Maintain the Duke catalog — add machines and update SKU details. Warehouse stock stays with HCA staff. PO/ASN arrives in Phase 2.",
   },
+  {
+    id: "neha-verma",
+    role: USER_ROLES.CATEGORY_MANAGER,
+    name: "Neha Verma",
+    title: "Category Manager · Sewing machines",
+    email: "neha.verma@grouphca.com",
+    password: "Category@123",
+    facilityIds: ["del-hq", "ggm-wh", "mum-rs", "blr-sh", "amd-pl"],
+    canViewAllFacilities: true,
+    productIds: ["prd-10532802592949", "prd-10527092572341"],
+    productScopeLabel: "Spot Tacking (DY 160-20) & Pattern Sewing (DY 3020)",
+    summary:
+      "Owns two sewing machines and their bill of materials — catalog edits, stock visibility, and component locations for that category only.",
+  },
 ]
 
 export const TEAM_USERS = [
@@ -60,6 +74,8 @@ export const TEAM_USERS = [
     role: persona.role,
     title: persona.title,
     facilityIds: persona.facilityIds,
+    productIds: persona.productIds ?? [],
+    productScopeLabel: persona.productScopeLabel ?? null,
     status: "active",
   })),
   {
@@ -69,6 +85,7 @@ export const TEAM_USERS = [
     role: USER_ROLES.USER,
     title: "Warehouse Associate · Gurugram",
     facilityIds: ["ggm-wh"],
+    productIds: [],
     status: "active",
   },
   {
@@ -78,6 +95,7 @@ export const TEAM_USERS = [
     role: USER_ROLES.STORE_MANAGER,
     title: "Plant Store Manager · Ahmedabad",
     facilityIds: ["amd-pl", "blr-sh"],
+    productIds: [],
     status: "active",
   },
   {
@@ -87,6 +105,7 @@ export const TEAM_USERS = [
     role: USER_ROLES.USER,
     title: "Store Executive · Mumbai",
     facilityIds: ["mum-rs"],
+    productIds: [],
     status: "inactive",
   },
 ]

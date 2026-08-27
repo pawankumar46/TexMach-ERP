@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { ProductImage } from "@/components/inventory/ProductImage"
 import { StockStatusBadge } from "@/components/ui/stock-status-badge"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { formatNumber } from "@/lib/utils"
 import { USER_ROLES, canManageInventoryItem } from "@/constants/roles"
@@ -22,20 +23,24 @@ export const InventoryTable = ({ items, onEdit, onDelete }) => {
   const user = useAuthStore((state) => state.user)
   const hideStock = user?.role === USER_ROLES.VENDOR
   const showActions = items.some((item) => canManageInventoryItem(user, item))
+  const showComponentMatches = items.some((item) => item.matchedComponents?.length)
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-line bg-white shadow-sm">
       <table className="w-full min-w-[52rem] text-left text-sm">
         <thead className="bg-navy-50 text-xs uppercase tracking-wide text-navy-800">
           <tr>
-            <th className="px-4 py-3 font-semibold">Product</th>
+            <th className="px-4 py-3 font-semibold">Machine</th>
             <th className="px-4 py-3 font-semibold">SKU</th>
+            {showComponentMatches ? (
+              <th className="px-4 py-3 font-semibold">Matched components</th>
+            ) : null}
             <th className="px-4 py-3 font-semibold">Brand</th>
             <th className="px-4 py-3 font-semibold">Category</th>
             {hideStock ? null : (
               <>
                 <th className="px-4 py-3 font-semibold">On hand</th>
-                <th className="px-4 py-3 font-semibold">Facilities</th>
+                <th className="px-4 py-3 font-semibold">Venues</th>
                 <th className="px-4 py-3 font-semibold">Status</th>
               </>
             )}
@@ -52,6 +57,27 @@ export const InventoryTable = ({ items, onEdit, onDelete }) => {
                 </Link>
               </td>
               <td className="px-4 py-3 font-mono text-xs">{item.sku}</td>
+              {showComponentMatches ? (
+                <td className="px-4 py-3">
+                  {item.matchedComponents?.length ? (
+                    <div className="space-y-1.5">
+                      {item.matchedComponents.slice(0, 3).map((component) => (
+                        <div key={component.id}>
+                          <p className="font-medium text-navy-900">{component.componentName}</p>
+                          <p className="font-mono text-xs text-muted">
+                            {component.componentId} · {component.variantName}
+                          </p>
+                        </div>
+                      ))}
+                      {item.matchedComponents.length > 3 ? (
+                        <Badge tone="slate">+{item.matchedComponents.length - 3} more</Badge>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <span className="text-muted">—</span>
+                  )}
+                </td>
+              ) : null}
               <td className="px-4 py-3">{item.brand}</td>
               <td className="px-4 py-3">{item.category}</td>
               {hideStock ? null : (

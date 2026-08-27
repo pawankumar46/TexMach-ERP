@@ -20,20 +20,29 @@ const scopeFacilityIds = (user, selectedFacilityId) => {
   return user?.facilityIds ?? []
 }
 
-export const getStockItems = async ({ user, selectedFacilityId, search = "", status } = {}) => {
+export const getStockItems = async ({
+  user,
+  selectedFacilityId,
+  search = "",
+  status,
+  facilityId = "all",
+} = {}) => {
   try {
     await delay()
     const facilityIds = scopeFacilityIds(user, selectedFacilityId)
     const productById = Object.fromEntries(getProductCatalog().map((product) => [product.id, product]))
+    const scopedProductIds = Array.isArray(user?.productIds) ? new Set(user.productIds) : null
 
     return getStockLedgerSnapshot()
       .filter((item) => !facilityIds || facilityIds.includes(item.facilityId))
+      .filter((item) => !scopedProductIds || scopedProductIds.has(item.productId))
       .map((item) => mapStockItem(item, productById[item.productId]))
       .filter((item) => {
         const haystack = `${item.productName} ${item.sku} ${item.bin}`.toLowerCase()
         const matchesSearch = haystack.includes(search.trim().toLowerCase())
         const matchesStatus = !status || status === "all" || item.stockStatus === status
-        return matchesSearch && matchesStatus
+        const matchesFacility = !facilityId || facilityId === "all" || item.facilityId === facilityId
+        return matchesSearch && matchesStatus && matchesFacility
       })
   } catch (error) {
     throw toAppError(error)
@@ -44,7 +53,13 @@ export const getStockMovements = async ({ user, selectedFacilityId } = {}) => {
   try {
     await delay(260)
     const facilityIds = scopeFacilityIds(user, selectedFacilityId)
-    return movements.filter((item) => !facilityIds || facilityIds.includes(item.facilityId))
+    const scopedProductIds = Array.isArray(user?.productIds) ? new Set(user.productIds) : null
+
+    return movements.filter((item) => {
+      const inFacility = !facilityIds || facilityIds.includes(item.facilityId)
+      const inProductScope = !scopedProductIds || scopedProductIds.has(item.productId)
+      return inFacility && inProductScope
+    })
   } catch (error) {
     throw toAppError(error)
   }

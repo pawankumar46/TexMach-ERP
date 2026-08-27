@@ -11,8 +11,10 @@ import { ErrorState } from "@/components/ui/error-state"
 import { PageSkeleton } from "@/components/ui/loading-skeleton"
 import { ProductImage } from "@/components/inventory/ProductImage"
 import { StockStatusBadge } from "@/components/ui/stock-status-badge"
+import { BillOfMaterialsTable } from "@/features/inventory/components/BillOfMaterialsTable"
 import { ProductFormDialog } from "@/features/inventory/components/ProductFormDialog"
 import { getInventoryItemById } from "@/services/inventory.service"
+import { getProductBom } from "@/services/bom.service"
 import { useAuthStore } from "@/store/useAuthStore"
 import { useFacilityStore } from "@/store/useFacilityStore"
 import { useInventoryStore } from "@/store/useInventoryStore"
@@ -32,6 +34,9 @@ export const InventoryDetailPage = () => {
   const [error, setError] = useState(null)
   const [formOpen, setFormOpen] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [bomRows, setBomRows] = useState([])
+  const [bomLoading, setBomLoading] = useState(true)
+  const [bomError, setBomError] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -62,6 +67,35 @@ export const InventoryDetailPage = () => {
     }
   }, [productId, user, selectedFacilityId])
 
+  useEffect(() => {
+    let cancelled = false
+
+    const loadBom = async () => {
+      setBomLoading(true)
+      setBomError(null)
+      try {
+        const rows = await getProductBom(productId)
+        if (!cancelled) {
+          setBomRows(rows)
+        }
+      } catch (loadError) {
+        if (!cancelled) {
+          setBomError(loadError.message)
+        }
+      } finally {
+        if (!cancelled) {
+          setBomLoading(false)
+        }
+      }
+    }
+
+    loadBom()
+
+    return () => {
+      cancelled = true
+    }
+  }, [productId])
+
   if (loading) {
     return <PageSkeleton />
   }
@@ -80,6 +114,19 @@ export const InventoryDetailPage = () => {
       navigate("/inventory")
     } catch (deleteError) {
       toast.error(deleteError.message)
+    }
+  }
+
+  const reloadBom = async () => {
+    setBomLoading(true)
+    setBomError(null)
+    try {
+      const rows = await getProductBom(productId)
+      setBomRows(rows)
+    } catch (loadError) {
+      setBomError(loadError.message)
+    } finally {
+      setBomLoading(false)
     }
   }
 
@@ -139,12 +186,12 @@ export const InventoryDetailPage = () => {
 
       {!hideQty ? (
         <div className="mt-6">
-          <h2 className="mb-3 text-lg font-semibold text-navy-900">Stock by facility</h2>
+          <h2 className="mb-3 text-lg font-semibold text-navy-900">Stock by venue</h2>
           <div className="overflow-x-auto rounded-2xl border border-line bg-white">
             <table className="w-full min-w-[40rem] text-left text-sm">
               <thead className="bg-navy-50 text-xs uppercase text-navy-800">
                 <tr>
-                  <th className="px-4 py-3">Facility</th>
+                  <th className="px-4 py-3">Venue</th>
                   <th className="px-4 py-3">Bin</th>
                   <th className="px-4 py-3">On hand</th>
                   <th className="px-4 py-3">Reserved</th>
@@ -184,6 +231,26 @@ export const InventoryDetailPage = () => {
           </p>
         </Card>
       )}
+
+      <div className="mt-6">
+        <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h2 className="text-lg font-semibold text-navy-900">Bill of materials</h2>
+            <p className="mt-1 text-sm text-muted">
+              Components and variants used to build this machine, with estimated procure time and supplier count.
+            </p>
+          </div>
+          {!bomLoading && !bomError && bomRows.length ? (
+            <Badge tone="navy">{formatNumber(bomRows.length)} components</Badge>
+          ) : null}
+        </div>
+        <BillOfMaterialsTable
+          rows={bomRows}
+          loading={bomLoading}
+          error={bomError}
+          onRetry={reloadBom}
+        />
+      </div>
 
       <ProductFormDialog
         open={formOpen}

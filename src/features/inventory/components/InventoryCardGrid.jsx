@@ -54,6 +54,31 @@ export const InventoryCardGrid = ({ items, onEdit, onDelete }) => {
               <p className="mt-1 text-sm text-muted">
                 {item.brand} · {item.category}
               </p>
+
+              {item.matchedComponents?.length ? (
+                <div className="mt-3 rounded-xl border border-navy-100 bg-navy-50/80 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-navy-700">
+                    Matched components
+                  </p>
+                  <p className="mt-1 text-xs text-muted">On machine: {item.name}</p>
+                  <ul className="mt-2 space-y-1.5">
+                    {item.matchedComponents.slice(0, 4).map((component) => (
+                      <li key={component.id} className="text-sm text-navy-900">
+                        <span className="font-medium">{component.componentName}</span>
+                        <span className="mt-0.5 block font-mono text-xs text-muted">
+                          {component.componentId} · {component.variantName}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  {item.matchedComponents.length > 4 ? (
+                    <p className="mt-2 text-xs text-muted">
+                      +{item.matchedComponents.length - 4} more in bill of materials
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+
               <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
                 {hideStock ? (
                   <Badge tone="gold">Supplier catalog</Badge>
@@ -62,7 +87,7 @@ export const InventoryCardGrid = ({ items, onEdit, onDelete }) => {
                     <span className="text-sm font-semibold text-navy-900">
                       {formatNumber(item.totalQuantity)} units
                     </span>
-                    <Badge tone="slate">{item.facilityCount} facilities</Badge>
+                    <Badge tone="slate">{item.facilityCount} venues</Badge>
                   </>
                 )}
                 {canManageInventoryItem(user, item) ? (

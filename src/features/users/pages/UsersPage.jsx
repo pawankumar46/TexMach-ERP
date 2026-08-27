@@ -42,7 +42,7 @@ export const UsersPage = () => {
     <div>
       <PageHeader
         title="Users, roles & personas"
-        description="Facility-scoped access for Super Admin, Store Manager, Store Executive, and Vendor."
+        description="Venue-scoped access for Super Admin, Store Manager, Store Executive, Vendor, and Category Manager."
       />
 
       <div className="mb-6 grid gap-4 md:grid-cols-2">
@@ -68,7 +68,7 @@ export const UsersPage = () => {
               <tr>
                 <th className="px-4 py-3">User</th>
                 <th className="px-4 py-3">Role</th>
-                <th className="px-4 py-3">Facilities</th>
+                <th className="px-4 py-3">Venues</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Action</th>
               </tr>

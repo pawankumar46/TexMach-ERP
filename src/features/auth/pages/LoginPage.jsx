@@ -17,7 +17,7 @@ import { EASE_OUT } from "@/lib/motion"
 const FEATURES = [
   { icon: Users, label: "User & role management" },
   { icon: Package, label: "Inventory & stock" },
-  { icon: Building2, label: "Multi-facility warehouses" },
+  { icon: Building2, label: "Venues & warehouses" },
   { icon: ScanLine, label: "Handheld scanning" },
 ]
 
@@ -214,7 +214,7 @@ export const LoginPage = () => {
                 >
                   <div className="border-t border-line px-4 pb-4 pt-3">
                     <p className="mb-3 text-xs leading-5 text-slate-500">
-                      Tap a row to fill the sign-in form. These accounts mirror the four Phase 1 roles.
+                      Tap a row to fill the sign-in form. These accounts mirror the Phase 1 roles.
                     </p>
                     <div className="space-y-2">
                       {PERSONAS.map((persona) => (
