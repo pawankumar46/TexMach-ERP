@@ -71,7 +71,7 @@ export const WarehousesPage = () => {
             onChange={(event) => setVenueTypeFilter(event.target.value)}
             aria-label="Filter by venue type"
           >
-            <option value="all">All venue types</option>
+            <option value="all">All</option>
             <option value={VENUE_TYPES.DISTRIBUTOR_OFFICE}>
               {VENUE_TYPE_LABELS[VENUE_TYPES.DISTRIBUTOR_OFFICE]}
             </option>

@@ -2,6 +2,7 @@ import catalog from "@/data/hca-catalog.json"
 import { deriveStockStatus } from "@/constants/stock-status"
 import { MOVEMENT_TYPES } from "@/constants/movement-types"
 import { FACILITIES } from "@/data/facilities"
+import { toTitleCase } from "@/lib/utils"
 
 const CATEGORY_RULES = [
   { test: /embroid|multi-head|9-color/i, category: "Embroidery" },
@@ -29,6 +30,7 @@ const pickCategory = (product) => {
 export const PRODUCTS = catalog.map((item, index) => {
   const seed = hashString(item.handle || item.sku)
   const brand = item.category || "HCA"
+  const category = pickCategory(item)
   const reorderLevel = 2 + (seed % 4)
   const costPrice = 45000 + (seed % 85) * 12500
   const abcClass = ["A", "A", "B", "B", "C"][seed % 5]
@@ -36,12 +38,13 @@ export const PRODUCTS = catalog.map((item, index) => {
   return {
     id: `prd-${item.sourceId}`,
     sourceId: item.sourceId,
-    name: item.name,
+    name: toTitleCase(item.name),
     sku: item.sku,
     model: item.model || item.sku,
     brand,
     manufacturer: "Hari Chand Anand & Co.",
-    category: pickCategory(item),
+    category,
+    tags: [category, brand].filter(Boolean),
     image: item.image,
     handle: item.handle,
     catalogUrl: `https://www.grouphca.com/products/${item.handle}`,

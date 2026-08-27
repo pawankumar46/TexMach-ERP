@@ -11,7 +11,7 @@ Blueprint modules delivered in this demo:
 - **User / role management** — four personas with facility-scoped access
 - **Inventory & stock management** — SKU master with photos, names, stock status, dummy costs, and catalog add/edit/delete
 - **Venues** — distributor offices and godowns / warehouses, with type filter, bin locations, utilization, transfers
-- **Barcode / RFID app** — Component scan queue: assign to warehouse, retain in store, scrape (recoverable or final), exchange
+- **Barcode / RFID app** — Component scan queue: assign to warehouse, retain in store, Scrap (recoverable or final), exchange
 
 Homepage is a **sign-in screen** (email + password). After login, Home shows KPIs for the selected role and venue scope.
 
@@ -51,10 +51,10 @@ The login page includes a collapsible **Demo accounts for review** panel to fill
 - `/` — Sign in (email + password)
 - `/dashboard` — Home KPIs, low-stock watchlist, recent movements in plain language
 - `/inventory` — Product grid and table; search machines **or BOM components** (shows parent machine + matched parts); **Add** / **Edit** / **Delete** for allowed roles
-- `/inventory/:productId` — Product detail, stock by facility, and **bill of materials** (52 components for each of the first five catalog machines). Click a BOM row to see facility stock quantities.
-- `/stock` — Stock ledger with search, **facility/location filter**, status filter, adjustments, transfers, and **Export Excel**
+- `/inventory/:productId` — Product detail, stock by facility, and **bill of materials** (52 components for each of the first five catalog machines). Search the BOM by component ID/name or variant; click a row to see facility stock quantities.
+- `/stock` — Stock ledger with search, **venue**, **bin tags** (e.g. WH-14), **status**, adjustments, transfers, and **Export Excel**
 - `/warehouses` — **Venues** (Distributor Office / Godown·Warehouse filter), cards, consolidated vs venue toggle
-- `/scan` — Scan **components**: assign to warehouse, retain in store, scrape (recoverable / final), or exchange. New arrivals removed.
+- `/scan` — Scan **components**: assign to warehouse, retain in store, Scrap (recoverable / final), or exchange. New arrivals removed.
 - `/users` — Persona matrix and demo user directory (Super Admin)
 
 ## Getting started
@@ -119,11 +119,21 @@ React Router, Zustand, Tailwind CSS, Lucide, Framer Motion, React Hook Form, Zod
 
 ## Changelog
 
+**2026-08-27** — Inventory filters use labels (Search, Category, Brand, Status, View) with dropdown default text **All**, matching the stock ledger.
+
+**2026-08-27** — Stock ledger **Tags** filter uses bin codes (e.g. WH-14, WH-02). Options update when a venue is selected.
+
+**2026-08-27** — Inventory machine names use consistent title case (first letter of each word upper, rest lower).
+
+**2026-08-27** — Product detail **Bill of materials** includes a search box to filter components by ID, name, or variant (with clear control and match count).
+
+**2026-08-27** — Stock ledger filters show labels: Search, Venue, and Status.
+
 **2026-08-27** — Inventory search field includes a clear (X) control to reset the query.
 
 **2026-08-27** — Inventory search for terms like “needle” shows a **Matching components** table (component + parent machine) above machine cards. Machines that matched via BOM are sorted first.
 
-**2026-08-27** — Inventory search also matches BOM components. Results show the parent machine plus matched component name/ID/variant.
+**2026-08-27** — Inventory search also matches BOM components. Results show the parent machine plus matched component name/ID/variScrap
 
 **2026-08-26** — Scan flow redesigned for **components**: removed New arrivals. Actions are Assign to warehouse, Retain in store, Scrape (recoverable / final), and Exchange.
 

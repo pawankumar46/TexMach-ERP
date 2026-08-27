@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Download, PackageSearch } from "lucide-react"
 import { toast } from "sonner"
 import { PageHeader } from "@/components/layout/PageHeader"
-import { Input, Select } from "@/components/ui/input"
+import { Input, Label, Select } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -49,9 +49,28 @@ export const StockPage = () => {
 
     const stillAllowed = facilityOptions.some((facility) => facility.id === filters.facilityId)
     if (!stillAllowed) {
-      setFilters({ facilityId: "all" })
+      setFilters({ facilityId: "all", tag: "all" })
     }
   }, [facilityOptions, filters.facilityId, setFilters])
+
+  const binOptions = (() => {
+    const venues =
+      filters.facilityId === "all"
+        ? facilityOptions
+        : facilityOptions.filter((facility) => facility.id === filters.facilityId)
+
+    return [...new Set(venues.flatMap((facility) => facility.bins ?? []))].sort()
+  })()
+
+  useEffect(() => {
+    if (filters.tag === "all") {
+      return
+    }
+
+    if (!binOptions.includes(filters.tag)) {
+      setFilters({ tag: "all" })
+    }
+  }, [binOptions, filters.tag, setFilters])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -96,35 +115,63 @@ export const StockPage = () => {
           </Button>
         }
       />
-      <div className="mb-5 grid gap-3 rounded-2xl border border-line bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-3">
-        <Input
-          value={filters.search}
-          onChange={(event) => setFilters({ search: event.target.value })}
-          placeholder="Search SKU, product, or bin"
-          aria-label="Search stock"
-        />
-        <Select
-          value={filters.facilityId}
-          onChange={(event) => setFilters({ facilityId: event.target.value })}
-          aria-label="Filter by venue"
-        >
-          <option value="all">All venues</option>
-          {facilityOptions.map((facility) => (
-            <option key={facility.id} value={facility.id}>
-              {facility.name} ({facility.code})
-            </option>
-          ))}
-        </Select>
-        <Select
-          value={filters.status}
-          onChange={(event) => setFilters({ status: event.target.value })}
-          aria-label="Filter stock status"
-        >
-          <option value="all">All statuses</option>
-          <option value="in_stock">In stock</option>
-          <option value="low_stock">Low stock</option>
-          <option value="out_of_stock">Out of stock</option>
-        </Select>
+      <div className="mb-5 grid gap-3 rounded-2xl border border-line bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <Label htmlFor="stock-search">Search</Label>
+          <Input
+            id="stock-search"
+            value={filters.search}
+            onChange={(event) => setFilters({ search: event.target.value })}
+            placeholder="Search SKU, product, or bin"
+            aria-label="Search stock"
+          />
+        </div>
+        <div>
+          <Label htmlFor="stock-venue">Venue</Label>
+          <Select
+            id="stock-venue"
+            value={filters.facilityId}
+            onChange={(event) => setFilters({ facilityId: event.target.value, tag: "all" })}
+            aria-label="Filter by venue"
+          >
+            <option value="all">All</option>
+            {facilityOptions.map((facility) => (
+              <option key={facility.id} value={facility.id}>
+                {facility.name} ({facility.code})
+              </option>
+            ))}
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="stock-tag">Tags</Label>
+          <Select
+            id="stock-tag"
+            value={filters.tag}
+            onChange={(event) => setFilters({ tag: event.target.value })}
+            aria-label="Filter by bin tag"
+          >
+            <option value="all">All</option>
+            {binOptions.map((bin) => (
+              <option key={bin} value={bin}>
+                {bin}
+              </option>
+            ))}
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="stock-status">Status</Label>
+          <Select
+            id="stock-status"
+            value={filters.status}
+            onChange={(event) => setFilters({ status: event.target.value })}
+            aria-label="Filter stock status"
+          >
+            <option value="all">All</option>
+            <option value="in_stock">In stock</option>
+            <option value="low_stock">Low stock</option>
+            <option value="out_of_stock">Out of stock</option>
+          </Select>
+        </div>
       </div>
 
       {loading ? <TableSkeleton rows={8} /> : null}

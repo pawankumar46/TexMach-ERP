@@ -13,7 +13,7 @@ export const SCRAP_DISPOSITIONS = {
 export const SCAN_TASK_LABELS = {
   [SCAN_TASK_TYPES.ASSIGN_WAREHOUSE]: "Assign to warehouse",
   [SCAN_TASK_TYPES.RETAIN_IN_STORE]: "Retain in store",
-  [SCAN_TASK_TYPES.SCRAP]: "Scrape",
+  [SCAN_TASK_TYPES.SCRAP]: "Scrap",
   [SCAN_TASK_TYPES.EXCHANGE]: "Exchange",
 }
 
@@ -23,14 +23,14 @@ export const SCAN_TASK_HINTS = {
   [SCAN_TASK_TYPES.RETAIN_IN_STORE]:
     "Scan to keep this component in the store — it stays available for use.",
   [SCAN_TASK_TYPES.SCRAP]:
-    "Scan a component that will be scraped. Choose recoverable scrape or final scrape.",
+    "Scan a component that will be Scrapd. Choose recoverable Scrap or final Scrap.",
   [SCAN_TASK_TYPES.EXCHANGE]:
     "Scan a component that is being exchanged (swap out / replace).",
 }
 
 export const SCRAP_DISPOSITION_LABELS = {
-  [SCRAP_DISPOSITIONS.RECOVERABLE]: "Recoverable scrape",
-  [SCRAP_DISPOSITIONS.FINAL]: "Scrape",
+  [SCRAP_DISPOSITIONS.RECOVERABLE]: "Recoverable Scrap",
+  [SCRAP_DISPOSITIONS.FINAL]: "Scrap",
 }
 
 export const SCRAP_DISPOSITION_HINTS = {
@@ -43,4 +43,4 @@ export const SCRAP_DISPOSITION_HINTS = {
 export const getScanTaskLabel = (type) => SCAN_TASK_LABELS[type] ?? "Scan component"
 
 export const getScrapDispositionLabel = (disposition) =>
-  SCRAP_DISPOSITION_LABELS[disposition] ?? "Scrape"
+  SCRAP_DISPOSITION_LABELS[disposition] ?? "Scrap"

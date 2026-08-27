@@ -57,7 +57,7 @@ export const completeScanTask = async ({
         disposition !== SCRAP_DISPOSITIONS.RECOVERABLE &&
         disposition !== SCRAP_DISPOSITIONS.FINAL
       ) {
-        throw new Error("Choose recoverable scrape or scrape before finishing.")
+        throw new Error("Choose recoverable Scrap or Scrap before finishing.")
       }
     }
 

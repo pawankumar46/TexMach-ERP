@@ -26,6 +26,7 @@ export const getStockItems = async ({
   search = "",
   status,
   facilityId = "all",
+  tag = "all",
 } = {}) => {
   try {
     await delay()
@@ -42,7 +43,8 @@ export const getStockItems = async ({
         const matchesSearch = haystack.includes(search.trim().toLowerCase())
         const matchesStatus = !status || status === "all" || item.stockStatus === status
         const matchesFacility = !facilityId || facilityId === "all" || item.facilityId === facilityId
-        return matchesSearch && matchesStatus && matchesFacility
+        const matchesTag = !tag || tag === "all" || item.bin === tag
+        return matchesSearch && matchesStatus && matchesFacility && matchesTag
       })
   } catch (error) {
     throw toAppError(error)

@@ -233,16 +233,11 @@ export const InventoryDetailPage = () => {
       )}
 
       <div className="mt-6">
-        <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h2 className="text-lg font-semibold text-navy-900">Bill of materials</h2>
-            <p className="mt-1 text-sm text-muted">
-              Components and variants used to build this machine, with estimated procure time and supplier count.
-            </p>
-          </div>
-          {!bomLoading && !bomError && bomRows.length ? (
-            <Badge tone="navy">{formatNumber(bomRows.length)} components</Badge>
-          ) : null}
+        <div className="mb-3">
+          <h2 className="text-lg font-semibold text-navy-900">Bill of materials</h2>
+          <p className="mt-1 text-sm text-muted">
+            Components and variants used to build this machine, with estimated procure time and supplier count.
+          </p>
         </div>
         <BillOfMaterialsTable
           rows={bomRows}

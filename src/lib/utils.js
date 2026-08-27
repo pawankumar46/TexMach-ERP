@@ -38,6 +38,17 @@ export const formatDate = (value) => {
   }).format(new Date(value))
 }
 
+/** First letter of each word upper, remaining letters lower (handles spaces and hyphens). */
+export const toTitleCase = (value) => {
+  if (!value) {
+    return ""
+  }
+
+  return String(value)
+    .toLowerCase()
+    .replace(/(^|[\s\-_/&(])([a-z])/g, (_, boundary, letter) => `${boundary}${letter.toUpperCase()}`)
+}
+
 export const delay = (ms = 420) => {
   return new Promise((resolve) => {
     window.setTimeout(resolve, ms)

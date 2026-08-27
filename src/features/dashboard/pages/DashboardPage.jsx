@@ -236,7 +236,7 @@ export const DashboardPage = () => {
             <Badge tone="navy">{openTasks.length} left</Badge>
           </div>
           <p className="mb-4 text-sm leading-6 text-muted">
-            Assign parts to a warehouse, retain them in store, scrape them, or exchange them after scanning.
+            Assign parts to a warehouse, retain them in store, Scrap them, or exchange them after scanning.
           </p>
           {openTasks.length ? (
             <ul className="space-y-3">

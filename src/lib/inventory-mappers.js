@@ -1,3 +1,5 @@
+import { toTitleCase } from "@/lib/utils"
+
 export const mapInventoryProduct = (product, stockRows = []) => {
   const totalQuantity = stockRows.reduce((sum, row) => sum + (row.quantity ?? 0), 0)
   const totalAvailable = stockRows.reduce((sum, row) => sum + (row.available ?? 0), 0)
@@ -16,7 +18,7 @@ export const toProductPayload = (values) => {
   const sku = values.sku.trim()
 
   return {
-    name: values.name.trim(),
+    name: toTitleCase(values.name.trim()),
     sku,
     model: values.model?.trim() || sku,
     brand: values.brand.trim(),

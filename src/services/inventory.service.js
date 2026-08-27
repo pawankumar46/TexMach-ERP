@@ -189,6 +189,7 @@ export const createInventoryItem = async (values, user) => {
       brand,
       manufacturer: "Hari Chand Anand & Co.",
       category: payload.category,
+      tags: [payload.category, brand].filter(Boolean),
       image: payload.image,
       handle: slugFromName(payload.name),
       catalogUrl: "",
@@ -238,6 +239,7 @@ export const updateInventoryItem = async (productId, values, user) => {
       model: payload.model,
       brand: payload.brand,
       category: payload.category,
+      tags: [payload.category, payload.brand].filter(Boolean),
       image: payload.image,
       reorderLevel: payload.reorderLevel,
       minQty: payload.reorderLevel,
@@ -274,5 +276,8 @@ export const deleteInventoryItem = async (productId, user) => {
 export const getInventoryMeta = () => {
   const categories = [...new Set([...PRODUCT_CATEGORIES, ...productCatalog.map((product) => product.category)])].sort()
   const brands = [...new Set(productCatalog.map((product) => product.brand))].sort()
-  return { categories, brands }
+  const tags = [
+    ...new Set(productCatalog.flatMap((product) => (Array.isArray(product.tags) ? product.tags : []))),
+  ].sort()
+  return { categories, brands, tags }
 }

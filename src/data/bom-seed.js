@@ -218,7 +218,7 @@ const MACHINE_BOM_CATALOGS = {
     { name: "Tape cutter blade", variants: ["Fixed", "Rotary", "Auto trim"] },
     { name: "Spare blade pack", variants: ["Standard", "Long life", "Ceramic"] },
     { name: "Glue pump gear unit", variants: ["Low viscosity", "Medium", "Heavy"] },
-    { name: "Return scraper blade", variants: ["Steel", "Plastic", "PTFE"] },
+    { name: "Return Scrapr blade", variants: ["Steel", "Plastic", "PTFE"] },
     { name: "Machine frame DL298", variants: ["Cast", "Welded", "Low vibe"] },
     { name: "Table top anti-stick", variants: ["Laminate", "Teflon sheet", "Aluminium"] },
     { name: "Stand with casters", variants: ["Locking", "Heavy", "Leveling"] },

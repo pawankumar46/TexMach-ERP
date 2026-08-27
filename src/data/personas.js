@@ -35,7 +35,7 @@ export const PERSONAS = [
     facilityIds: ["del-hq"],
     canViewAllFacilities: false,
     summary:
-      "Shop-floor component scanning — assign to warehouse, retain, scrape, or exchange at a single facility.",
+      "Shop-floor component scanning — assign to warehouse, retain, Scrap, or exchange at a single facility.",
   },
   {
     id: "kenji-sato",

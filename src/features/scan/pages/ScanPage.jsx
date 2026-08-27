@@ -27,7 +27,7 @@ const TASK_TABS = [
   { id: "all", label: "Everything" },
   { id: SCAN_TASK_TYPES.ASSIGN_WAREHOUSE, label: "Assign to warehouse" },
   { id: SCAN_TASK_TYPES.RETAIN_IN_STORE, label: "Retain in store" },
-  { id: SCAN_TASK_TYPES.SCRAP, label: "Scrape" },
+  { id: SCAN_TASK_TYPES.SCRAP, label: "Scrap" },
   { id: SCAN_TASK_TYPES.EXCHANGE, label: "Exchange" },
 ]
 
@@ -75,7 +75,7 @@ export const ScanPage = () => {
     <div>
       <PageHeader
         title="Scan a component"
-        description="First scan and assign a component to a warehouse. Then retain it in store, scrape it (recoverable or final), or exchange it."
+        description="First scan and assign a component to a warehouse. Then retain it in store, Scrap it (recoverable or final), or exchange it."
       />
 
       <Card className="mb-5 border-navy-100 bg-navy-50/70 p-4">
@@ -89,8 +89,8 @@ export const ScanPage = () => {
             <p className="text-xs text-muted">Keep the component available in the store.</p>
           </li>
           <li>
-            <span className="font-semibold">3. Scrape</span>
-            <p className="text-xs text-muted">Recoverable scrape or final scrape.</p>
+            <span className="font-semibold">3. Scrap</span>
+            <p className="text-xs text-muted">Recoverable Scrap or final Scrap.</p>
           </li>
           <li>
             <span className="font-semibold">4. Exchange</span>
@@ -198,7 +198,7 @@ export const ScanPage = () => {
 
         {activeTask?.type === SCAN_TASK_TYPES.SCRAP ? (
           <fieldset className="mb-4 space-y-2">
-            <legend className="mb-1.5 text-sm font-medium text-slate-700">Scrape type</legend>
+            <legend className="mb-1.5 text-sm font-medium text-slate-700">Scrap type</legend>
             {[SCRAP_DISPOSITIONS.RECOVERABLE, SCRAP_DISPOSITIONS.FINAL].map((option) => (
               <label
                 key={option}
